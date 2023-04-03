@@ -1,8 +1,9 @@
 import torch
 from torch.utils.data import Dataset
 
+
 class BaseDataset(Dataset):
-    def __init__(self, path, transform=None, author_ids=None, nameset=None):
+    def __init__(self, path, transform=None, author_ids=None, nameset=None, max_samples=None):
         """
         Args:
             path (string): Path folder of the dataset.
@@ -13,9 +14,14 @@ class BaseDataset(Dataset):
         """
         if nameset is not None:
             raise NotImplementedError('Nameset is not implemented yet.')
-        
+
+        self.path = path
         self.imgs = []
         self.labels = []
+        self.transform = transform
+        self.author_ids = author_ids
+        self.nameset = nameset
+        self.max_samples = max_samples
 
     def __getitem__(self, index):
         """

@@ -1,1 +1,1 @@
-from fake_dataset import FakeDataset
+from .fake_dataset import FakeDataset
