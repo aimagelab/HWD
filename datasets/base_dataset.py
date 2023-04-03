@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import Dataset
 
-class MetricDataset(Dataset):
+class BaseDataset(Dataset):
     def __init__(self, path, transform=None, author_ids=None, nameset=None):
         """
         Args:
