@@ -30,8 +30,9 @@ class NorhandDataset(base_dataset.BaseDataset):
                 authors.add(row[2])
                 self.pages_and_authors[row[0]] = row[2]
 
+        authors = sorted(list(authors))
         if author_ids is None:
-            self.author_ids = list(authors)
+            self.author_ids = sorted(list(authors))
 
         self.labels = {str(author): int(label) for label, author in enumerate(authors)}
         self.imgs = [
@@ -47,16 +48,12 @@ class NorhandDataset(base_dataset.BaseDataset):
 
 
 if __name__ == '__main__':
-    norhand_path = r'/mnt/FoMo_AIISDH/datasets/Norhand'
-
-    # Code to generate the authors ids file
-    # imgs_paths = sorted(list(Path(norhand_path).glob('*.jpg')))
-    # prefixes = [p.stem.split('_')[0] for p in imgs_paths]
-    # set_prefixes = set(prefixes)
-    # prefixes_dict = {i: p for i, p in enumerate(set_prefixes)}
-    # import json
-    # with open('/mnt/FoMo_AIISDH/datasets/Norhand/authors_ids_file.json', 'w') as authors_ids_file:
-    #     json.dump(prefixes_dict, authors_ids_file)
+    norhand_path = r'/home/shared/datasets/Norhand'
 
     dataset = NorhandDataset(norhand_path)
-    print(dataset)
+    print(len(dataset))
+    print(dataset[0][1])
+
+    dataset = NorhandDataset(norhand_path, author_ids=['Bonnevie, Kristine', 'Nielsen, Petronelle'])
+    print(len(dataset))
+    print(dataset[0][1])

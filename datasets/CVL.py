@@ -22,7 +22,7 @@ class CVLDataset(base_dataset.BaseDataset):
         """
         super().__init__(path, transform, author_ids, nameset, max_samples)
 
-        all_author_ids = [p.stem for p in Path(path).glob('*/lines/*')]
+        all_author_ids = sorted([p.stem for p in Path(path).glob('*/lines/*')])
         self.labels = {str(author_id): int(label) for label, author_id in enumerate(all_author_ids)}
         if author_ids is None:
             self.author_ids = all_author_ids
@@ -45,9 +45,10 @@ if __name__ == '__main__':
     # cvl_path = r'/mnt/FoMo_AIISDH/datasets/CVL/cvl-database-1-1'
     cvl_path = r'/home/shared/datasets/cvl-database-1-1'
 
-    dataset = CVLDataset(cvl_path, max_samples=1000)
+    dataset = CVLDataset(cvl_path)
     print(len(dataset))
-    print(dataset[0])
+    print(dataset[0][1])
 
-    # dataset = CVLDataset(cvl_path, author_ids=['0953', '0479'])
-    # print(len(dataset))
+    dataset = CVLDataset(cvl_path, author_ids=['0953', '0479'])
+    print(len(dataset))
+    print(dataset[0][1])

@@ -22,7 +22,7 @@ class LeopardiDataset(base_dataset.BaseDataset):
         """
         super().__init__(path, transform, None, nameset, max_samples)
 
-        self.imgs = [p for p in Path(path).rglob(f'lines/*.jpg')]
+        self.imgs = sorted([p for p in Path(path).rglob(f'*.jpg')])
         if max_samples is not None:
             random.shuffle(self.imgs)
             self.imgs = self.imgs[:max_samples]
@@ -37,8 +37,8 @@ class LeopardiDataset(base_dataset.BaseDataset):
 
 if __name__ == '__main__':
     # leopardi_path = r'/mnt/FoMo_AIISDH/datasets/LEOPARDI/leopardi'
-    leopardi_path = r'/home/shared/datasets/LEOPARDI/leopardi'
+    leopardi_path = r'/home/shared/datasets/leopardi'
 
-    dataset = LeopardiDataset(leopardi_path, max_samples=1000)
+    dataset = LeopardiDataset(leopardi_path)
     print(len(dataset))
     print(dataset[0])
