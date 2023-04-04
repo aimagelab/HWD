@@ -43,7 +43,10 @@ class FID:
         self.dims = dims
         self.device = 'cuda' if cuda else 'cpu'
 
-    def compute(self, batch_size=128, verbose=False):
+    def compute(self, batch_size=128, verbose=False, ganwriting_script=False):
+        if ganwriting_script:
+            return self._compute_ganwriting_original_script(batch_size, verbose)
+
         block_idx = InceptionV3.BLOCK_INDEX_BY_DIM[self.dims]
 
         model = InceptionV3([block_idx])
@@ -58,10 +61,12 @@ class FID:
 
         return fid_value
 
-    def compute_slow(self, batch_size=128, verbose=False):
+    def _compute_ganwriting_original_script(self, batch_size=128, verbose=False):
         cuda = self.device == 'cuda'
-        print('WARNING: This method don\'t allow any kind of filter or transformations.')
+
+        print('WARNING: The "compute_ganwriting" method don\'t allow any kind of filter or transformations.')
         if verbose: print('Computing FID for dataset1 and dataset2')
         path1, path2 = str(self.dataset1.path), str(self.dataset2.path)
         fid_value = calculate_fid_given_paths((path1, path2), batch_size, cuda, self.dims)
         return fid_value
+

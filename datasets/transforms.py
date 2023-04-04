@@ -1,4 +1,5 @@
 from PIL import Image
+from torchvision.transforms import Compose, ToTensor
 
 
 class ResizeHeight:
@@ -26,8 +27,22 @@ class CropStartSquare:
 
 
 class ResizeSquare:
-    def __init__(self, size):
+    def __init__(self, size, interpolation=Image.NEAREST):
         self.size = size
+        self.interpolation = interpolation
 
     def __call__(self, img):
-        return img.resize((self.size, self.size), Image.BILINEAR)
+        return img.resize((self.size, self.size), self.interpolation)
+
+
+ganwriting_fid_tranforms = Compose([
+    CropStart(64),
+    ResizeSquare(64),
+    ToTensor()
+])
+
+our_fid_tranforms = Compose([
+    CropStartSquare(),
+    ResizeSquare(64),
+    ToTensor()
+])
