@@ -6,10 +6,10 @@ from PIL import Image
 import json
 import random
 
-import base_dataset
+from .base_dataset import BaseDataset
 
 
-class IAMDataset(base_dataset.BaseDataset):
+class IAMDataset(BaseDataset):
     def __init__(self, path, transform=None, author_ids=None, nameset=None, max_samples=None):
         """
         Args:

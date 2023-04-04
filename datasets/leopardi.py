@@ -6,10 +6,10 @@ from PIL import Image
 import json
 import random
 
-import base_dataset
+from .base_dataset import BaseDataset
 
 
-class LeopardiDataset(base_dataset.BaseDataset):
+class LeopardiDataset(BaseDataset):
     def __init__(self, path, transform=None, nameset=None, max_samples=None):
         """
         Args:

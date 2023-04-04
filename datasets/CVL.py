@@ -5,11 +5,10 @@ from pathlib import Path
 from PIL import Image
 import json
 import random
+from .base_dataset import BaseDataset
 
-import base_dataset
 
-
-class CVLDataset(base_dataset.BaseDataset):
+class CVLDataset(BaseDataset):
     def __init__(self, path, transform=None, author_ids=None, nameset=None, max_samples=None):
         """
         Args:

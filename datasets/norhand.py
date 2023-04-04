@@ -5,10 +5,10 @@ from pathlib import Path
 from PIL import Image
 import csv
 
-import base_dataset
+from .base_dataset import BaseDataset
 
 
-class NorhandDataset(base_dataset.BaseDataset):
+class NorhandDataset(BaseDataset):
     def __init__(self, path, transform=None, author_ids=None, nameset=None):
         """
         Args:
