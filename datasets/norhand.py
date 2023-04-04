@@ -22,7 +22,9 @@ class NorhandDataset(BaseDataset):
 
         authors = set()
         self.pages_and_authors = {}
-        with open('/mnt/FoMo_AIISDH/datasets/Norhand/writer_information.csv', 'r') as authors_ids_file:
+
+        writer_information_path = Path(path) / 'writer_information.csv'
+        with open(writer_information_path, 'r') as authors_ids_file:
             csvreader = csv.reader(authors_ids_file, delimiter=';')
             for idx, row in enumerate(csvreader):
                 if idx == 0:
