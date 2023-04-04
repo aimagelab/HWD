@@ -22,7 +22,7 @@ class LeopardiDataset(base_dataset.BaseDataset):
         """
         super().__init__(path, transform, None, nameset, max_samples)
 
-        self.imgs = sorted([p for p in Path(path).rglob(f'*.jpg')])
+        self.imgs = [p for p in Path(path).rglob(f'*.jpg')]
         if max_samples is not None:
             random.shuffle(self.imgs)
             self.imgs = self.imgs[:max_samples]
