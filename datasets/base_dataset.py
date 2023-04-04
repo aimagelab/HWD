@@ -17,7 +17,7 @@ class BaseDataset(Dataset):
 
         self.path = path
         self.imgs = []
-        self.labels = []
+        self.labels = {}
         self.transform = transform
         self.author_ids = author_ids
         self.nameset = nameset
