@@ -11,6 +11,7 @@ class BaseDataset(Dataset):
                 on a sample.
             author_ids (list, optional): List of authors to consider.
             nameset (string, optional): Name of the dataset.
+            max_samples (int, optional): Maximum number of samples to consider.
         """
         if nameset is not None:
             raise NotImplementedError('Nameset is not implemented yet.')
