@@ -10,7 +10,7 @@ from .base_dataset import BaseDataset
 
 
 class LeopardiDataset(BaseDataset):
-    def __init__(self, path, transform=None, nameset=None, max_samples=None):
+    def __init__(self, path, transform=None, author_ids=None, nameset=None, max_samples=None):
         """
         Args:
             path (string): Path folder of the dataset.
@@ -24,6 +24,7 @@ class LeopardiDataset(BaseDataset):
 
         self.imgs = [p for p in Path(path).rglob(f'*.jpg')]
         if max_samples is not None:
+            self.imgs = sorted(self.imgs)
             random.shuffle(self.imgs)
             self.imgs = self.imgs[:max_samples]
 

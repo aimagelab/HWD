@@ -28,6 +28,7 @@ class CVLDataset(BaseDataset):
 
         self.imgs = [p for author_id in self.author_ids for p in Path(path).rglob(f'lines/{author_id}/*')]
         if max_samples is not None:
+            self.imgs = sorted(self.imgs)
             random.shuffle(self.imgs)
             self.imgs = self.imgs[:max_samples]
 

@@ -40,6 +40,11 @@ class NorhandDataset(BaseDataset):
         self.imgs = [
             p for p in Path(path).rglob(f'*.jpg') if self.pages_and_authors[p.stem.split('_')[0]] in self.author_ids]
 
+        if max_samples is not None:
+            self.imgs = sorted(self.imgs)
+            random.shuffle(self.imgs)
+            self.imgs = self.imgs[:max_samples]
+
     def __getitem__(self, index):
         img = self.imgs[index]
         label = self.labels[self.pages_and_authors[img.stem.split('_')[0]]]

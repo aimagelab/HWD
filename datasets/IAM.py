@@ -29,6 +29,7 @@ class IAMDataset(BaseDataset):
 
         self.imgs = [p for author_id in self.author_ids for p in Path(path).rglob(f'{author_id}*') if p.is_file()]
         if max_samples is not None:
+            self.imgs = sorted(self.imgs)
             random.shuffle(self.imgs)
             self.imgs = self.imgs[:max_samples]
 
