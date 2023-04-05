@@ -13,7 +13,7 @@ def compute_statistics_of_dataset(loader, model, device, verbose=False):
 
     return mu, sigma
 
-
+@torch.no_grad()
 def get_activations(loader, model, device, verbose=False):
     model.eval()
 

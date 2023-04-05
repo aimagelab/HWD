@@ -1,15 +1,20 @@
-from metrics import FID, GeometricScore
+from metrics import FReD
 from datasets import FakeDataset
-from datasets.transforms import ganwriting_fid_tranforms, our_fid_tranforms
+from datasets.transforms import fid_ganwriting_tranforms, fid_our_tranforms, gs_tranforms, fred_tranforms
 from torchvision.transforms import Compose, ToTensor
 from PIL import Image
+import time
 
 if __name__ == '__main__':
     path1 = '/home/vpippi/VATr/saved_images/vatr/Fake_test'
     path2 = '/home/vpippi/VATr/saved_images/vatr/Real_test'
 
-    dataset1 = FakeDataset(path1)
-    dataset2 = FakeDataset(path2)
+    dataset1 = FakeDataset(path1, transform=fred_tranforms, max_samples=None)
+    dataset2 = FakeDataset(path2, transform=fred_tranforms, max_samples=None)
+
+    dataset1.sort()
+    dataset2.sort()
+
     # fid_value = FID(dataset1, dataset2).compute(batch_size=256, verbose=True, ganwriting_script=True)
     # print('original GANwriting FID:', fid_value)
     # INTER_NEAREST:    14.847048027543224
@@ -34,5 +39,11 @@ if __name__ == '__main__':
     # fid_value = FID(dataset1, dataset2).compute(batch_size=256, verbose=True)
     # print('GANwriting FID implementation:', fid_value)
 
-    gs = GeometricScore(dataset1, dataset2).compute(batch_size=256, verbose=True)
-    print('Geometric Score:', gs)
+    # gs = GeometricScore(dataset1, dataset2).compute(batch_size=256, verbose=True, parallel=True)
+    # print('Geometric Score:', gs)  # 0.0003375288712080084
+
+    for batch_size in [128, 64, 32, 16, 8, 4, 2, 1]:
+        start = time.time()
+        fred = FReD(dataset1, dataset2).compute(batch_size=batch_size, verbose=True)
+        print(f'FReD ({batch_size}): {fred:.02f} time: {time.time() - start:.02f}')
+

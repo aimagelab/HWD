@@ -23,6 +23,7 @@ class BaseDataset(Dataset):
         self.author_ids = author_ids
         self.nameset = nameset
         self.max_samples = max_samples
+        self.is_sorted = False
 
     def __getitem__(self, index):
         """
@@ -36,3 +37,16 @@ class BaseDataset(Dataset):
 
     def __len__(self):
         return len(self.imgs)
+
+    def sort(self, verbose=False):
+        if self.is_sorted:
+            return
+        imgs_width = []
+        for i, (img, label) in enumerate(self):
+            imgs_width.append(img.size(2))
+            if verbose:
+                print(f'\rSorting {i + 1}/{len(self)}', end='', flush=True)
+        self.imgs = [x for _, x in sorted(zip(imgs_width, self.imgs), key=lambda pair: pair[0])]
+        if verbose:
+            print(' OK')
+        self.is_sorted = True
