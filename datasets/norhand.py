@@ -3,13 +3,13 @@ from torch.utils.data import Dataset
 
 from pathlib import Path
 from PIL import Image
-import csv
-
-from .base_dataset import BaseDataset
+import json
+import random
+from base_dataset import BaseDataset
 
 
 class NorhandDataset(BaseDataset):
-    def __init__(self, path, transform=None, author_ids=None, nameset=None):
+    def __init__(self, path, transform=None, author_ids=None, nameset=None, max_samples=None):
         """
         Args:
             path (string): Path folder of the dataset.
@@ -18,7 +18,7 @@ class NorhandDataset(BaseDataset):
             author_ids (list, optional): List of authors to consider.
             nameset (string, optional): Name of the dataset.
         """
-        super().__init__(path, transform, author_ids, nameset)
+        super().__init__(path, transform, author_ids, nameset, max_samples)
 
         authors = set()
         self.pages_and_authors = {}

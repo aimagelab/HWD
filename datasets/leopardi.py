@@ -10,13 +10,12 @@ from .base_dataset import BaseDataset
 
 
 class LeopardiDataset(BaseDataset):
-    def __init__(self, path, transform=None, author_ids=None, nameset=None, max_samples=None):
+    def __init__(self, path, transform=None, nameset=None, max_samples=None):
         """
         Args:
             path (string): Path folder of the dataset.
             transform (callable, optional): Optional transform to be applied
                 on a sample.
-            author_ids (list, optional): List of authors to consider.
             nameset (string, optional): Name of the dataset.
             max_samples (int, optional): Maximum number of samples to consider.
         """
