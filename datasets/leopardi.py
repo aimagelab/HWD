@@ -4,7 +4,6 @@ from PIL import Image
 import random
 
 
-
 class LeopardiDataset(BaseDataset):
     def __init__(self, path, transform=None, nameset=None, max_samples=None):
         """
@@ -17,8 +16,8 @@ class LeopardiDataset(BaseDataset):
         """
         super().__init__(path, transform, None, nameset, max_samples)
 
-        if author_ids is None:
-            self.author_ids = [0, ]
+        self.all_author_ids = [0, ]
+        self.author_ids = self.all_author_ids
 
         self.imgs = [p for p in Path(path).rglob(f'*.jpg')]
         self.labels = [0, ] * len(self.imgs)

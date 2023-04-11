@@ -25,33 +25,25 @@ class LAMDataset(BaseDataset):
         self.imgs = [p for p in Path(path).glob(f'img/*.jpg')]
         decades_json_paths = list((Path(path) / 'split' / 'decades_vs_decade').iterdir())
 
-        if author_ids is not None:
-            self.author_ids = author_ids
-            decades_json_paths = [
-                path for path in (Path(lam_path) / 'split' / 'decades_vs_decade').iterdir()
-                if path.stem.split('_')[-1] in author_ids]
+        self.all_author_ids = sorted([int(path.stem.split('_')[-1]) for path in decades_json_paths])
+        if author_ids is None:
+            self.author_ids = self.all_author_ids
+        else:
+            self.author_ids = [int(author_id) for author_id in author_ids]
 
-        self.images_decades = {}
+        images_decades = {}
         for decade_json_path in decades_json_paths:
             with open(decade_json_path, 'r') as f:
                 decades = json.load(f)
             for el in decades:
-                self.images_decades[el['img']] = el['decade_id']
+                images_decades[el['img']] = el['decade_id']
 
-        self.imgs = [img for img in self.imgs if img.name in self.images_decades] if author_ids is not None else self.imgs
+        self.labels = [images_decades[img.name] for img in self.imgs]
 
         if max_samples is not None:
             self.imgs = sorted(self.imgs)
             random.shuffle(self.imgs)
             self.imgs = self.imgs[:max_samples]
-
-    def __getitem__(self, index):
-        img = self.imgs[index]
-        decade = self.images_decades[img.name]
-        img = Image.open(img).convert('RGB')
-        if self.transform is not None:
-            img = self.transform(img)
-        return img, decade
 
 
 if __name__ == '__main__':

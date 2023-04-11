@@ -18,7 +18,7 @@ class NorhandDataset(BaseDataset):
         super().__init__(path, transform, author_ids, nameset, max_samples)
 
         authors = set()
-        self.pages_and_authors = {}
+        pages_and_authors = {}
 
         writer_information_path = Path(path) / 'writer_information.csv'
         with open(writer_information_path, 'r') as authors_ids_file:
@@ -27,15 +27,15 @@ class NorhandDataset(BaseDataset):
                 if idx == 0:
                     continue
                 authors.add(row[2])
-                self.pages_and_authors[row[0]] = row[2]
+                pages_and_authors[row[0]] = row[2]
 
+        self.all_author_ids = sorted(list(authors))
         if author_ids is None:
-            self.all_author_ids = sorted(list(authors))
             self.author_ids = self.all_author_ids
 
         # self.labels = {str(author): int(label) for label, author in enumerate(authors)}
         self.imgs = [p for p in Path(path).rglob(f'*.jpg')]
-        self.labels = [self.pages_and_authors[img.stem.split('_')[0]] for img in self.imgs]
+        self.labels = [pages_and_authors[img.stem.split('_')[0]] for img in self.imgs]
 
         if max_samples is not None:
             self.imgs = sorted(self.imgs)

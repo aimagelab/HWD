@@ -18,8 +18,8 @@ class CVLDataset(BaseDataset):
         super().__init__(path, transform, author_ids, nameset, max_samples)
 
         # self.labels = {str(author_id): int(label) for label, author_id in enumerate(self.all_author_ids)}
+        self.all_author_ids = sorted([p.stem for p in Path(path).glob('*/lines/*')])
         if author_ids is None:
-            self.all_author_ids = sorted([p.stem for p in Path(path).glob('*/lines/*')])
             self.author_ids = self.all_author_ids
 
         self.imgs = [p for p in Path(path).rglob(f'lines/*/*')]

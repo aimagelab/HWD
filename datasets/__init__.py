@@ -4,3 +4,4 @@ from .CVL import CVLDataset
 from .IAM import IAMDataset
 from .leopardi import LeopardiDataset
 from .norhand import NorhandDataset
+from .LAM import LAMDataset
