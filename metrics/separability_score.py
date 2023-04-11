@@ -1,33 +1,28 @@
 from .base_score import BaseScore
-import torch
+import numpy as np
+from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 
 
-class SeparabilityScore(BaseScore):
-    def __init__(self, device='cuda'):
-        super().__init__()
-        self.device = device
+class SilhouetteScore(BaseScore):
+    def distance(self, good, bad, metric='euclidean', **kwargs):
+        good = np.array(good)
+        bad = np.array(bad)
+        data = np.concatenate([good, bad]).reshape(-1, 1)
+        clusters = np.concatenate([np.ones_like(good), np.zeros_like(bad)])
+        return silhouette_score(data, clusters, metric=metric, **kwargs)
 
-    def digest(self, dataset, **kwargs):
-        return dataset
+class CalinskiHarabaszScore(BaseScore):
+    def distance(self, good, bad, **kwargs):
+        good = np.array(good)
+        bad = np.array(bad)
+        data = np.concatenate([good, bad]).reshape(-1, 1)
+        clusters = np.concatenate([np.ones_like(good), np.zeros_like(bad)])
+        return calinski_harabasz_score(data, clusters, **kwargs)
 
-    def distance(self, data1, data2, **kwargs):
-        good = torch.Tensor(data1).to(self.device)
-        bad = torch.Tensor(data2).to(self.device)
-
-        upper_bound = good.max()
-        lower_bound = bad.min()
-
-        if upper_bound < lower_bound:
-            upper_bound, lower_bound = lower_bound, upper_bound
-
-        X = torch.linspace(lower_bound, upper_bound, 1000).to(self.device)
-
-        X_good = X.repeat(good.size(0), 1).T - good
-        X_bad = bad - X.repeat(bad.size(0), 1).T
-
-        X_score = torch.cat([X_good, X_bad], dim=1).sum(dim=1)
-
-        print()
-        return None
-
-
+class DaviesBouldinScore(BaseScore):
+    def distance(self, good, bad, **kwargs):
+        good = np.array(good)
+        bad = np.array(bad)
+        data = np.concatenate([good, bad]).reshape(-1, 1)
+        clusters = np.concatenate([np.ones_like(good), np.zeros_like(bad)])
+        return davies_bouldin_score(data, clusters, **kwargs)
