@@ -1,12 +1,8 @@
-import torch
-from torch.utils.data import Dataset
-
+from .base_dataset import BaseDataset
 from pathlib import Path
 from PIL import Image
-import json
 import random
 
-from .base_dataset import BaseDataset
 
 
 class LeopardiDataset(BaseDataset):
@@ -21,18 +17,15 @@ class LeopardiDataset(BaseDataset):
         """
         super().__init__(path, transform, None, nameset, max_samples)
 
+        if author_ids is None:
+            self.author_ids = [0, ]
+
         self.imgs = [p for p in Path(path).rglob(f'*.jpg')]
+        self.labels = [0, ] * len(self.imgs)
         if max_samples is not None:
             self.imgs = sorted(self.imgs)
             random.shuffle(self.imgs)
             self.imgs = self.imgs[:max_samples]
-
-    def __getitem__(self, index):
-        img = self.imgs[index]
-        img = Image.open(img).convert('RGB')
-        if self.transform is not None:
-            img = self.transform(img)
-        return img, 0
 
 
 if __name__ == '__main__':

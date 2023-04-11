@@ -1,11 +1,7 @@
-import torch
-from torch.utils.data import Dataset
-
+from .base_dataset import BaseDataset
 from pathlib import Path
 from PIL import Image
-import json
 import random
-from .base_dataset import BaseDataset
 
 
 class CVLDataset(BaseDataset):
@@ -21,24 +17,17 @@ class CVLDataset(BaseDataset):
         """
         super().__init__(path, transform, author_ids, nameset, max_samples)
 
-        all_author_ids = sorted([p.stem for p in Path(path).glob('*/lines/*')])
-        self.labels = {str(author_id): int(label) for label, author_id in enumerate(all_author_ids)}
+        # self.labels = {str(author_id): int(label) for label, author_id in enumerate(self.all_author_ids)}
         if author_ids is None:
-            self.author_ids = all_author_ids
+            self.all_author_ids = sorted([p.stem for p in Path(path).glob('*/lines/*')])
+            self.author_ids = self.all_author_ids
 
-        self.imgs = [p for author_id in self.author_ids for p in Path(path).rglob(f'lines/{author_id}/*')]
+        self.imgs = [p for p in Path(path).rglob(f'lines/*/*')]
+        self.labels = [img.parent.stem for img in self.imgs]
         if max_samples is not None:
             self.imgs = sorted(self.imgs)
             random.shuffle(self.imgs)
             self.imgs = self.imgs[:max_samples]
-
-    def __getitem__(self, index):
-        img = self.imgs[index]
-        label = self.labels[img.parent.stem]
-        img = Image.open(img).convert('RGB')
-        if self.transform is not None:
-            img = self.transform(img)
-        return img, label
 
 
 if __name__ == '__main__':

@@ -1,11 +1,8 @@
-import torch
-from torch.utils.data import Dataset
-
+from .base_dataset import BaseDataset
 from pathlib import Path
 from PIL import Image
-import json
+import csv
 import random
-from base_dataset import BaseDataset
 
 
 class NorhandDataset(BaseDataset):
@@ -32,26 +29,18 @@ class NorhandDataset(BaseDataset):
                 authors.add(row[2])
                 self.pages_and_authors[row[0]] = row[2]
 
-        authors = sorted(list(authors))
         if author_ids is None:
-            self.author_ids = sorted(list(authors))
+            self.all_author_ids = sorted(list(authors))
+            self.author_ids = self.all_author_ids
 
-        self.labels = {str(author): int(label) for label, author in enumerate(authors)}
-        self.imgs = [
-            p for p in Path(path).rglob(f'*.jpg') if self.pages_and_authors[p.stem.split('_')[0]] in self.author_ids]
+        # self.labels = {str(author): int(label) for label, author in enumerate(authors)}
+        self.imgs = [p for p in Path(path).rglob(f'*.jpg')]
+        self.labels = [self.pages_and_authors[img.stem.split('_')[0]] for img in self.imgs]
 
         if max_samples is not None:
             self.imgs = sorted(self.imgs)
             random.shuffle(self.imgs)
             self.imgs = self.imgs[:max_samples]
-
-    def __getitem__(self, index):
-        img = self.imgs[index]
-        label = self.labels[self.pages_and_authors[img.stem.split('_')[0]]]
-        img = Image.open(img).convert('RGB')
-        if self.transform is not None:
-            img = self.transform(img)
-        return img, label
 
 
 if __name__ == '__main__':

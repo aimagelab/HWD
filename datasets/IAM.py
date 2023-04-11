@@ -1,12 +1,8 @@
-import torch
-from torch.utils.data import Dataset
-
+from .base_dataset import BaseDataset
 from pathlib import Path
 from PIL import Image
-import json
 import random
 
-from .base_dataset import BaseDataset
 
 
 class IAMDataset(BaseDataset):
@@ -22,24 +18,17 @@ class IAMDataset(BaseDataset):
         """
         super().__init__(path, transform, author_ids, nameset, max_samples)
 
-        all_author_ids = sorted([p.stem for p in Path(path).iterdir()])
-        self.labels = {str(author_id): int(label) for label, author_id in enumerate(all_author_ids)}
+        self.all_author_ids = sorted([p.stem for p in Path(path).iterdir()])
+        # self.labels = {str(author_id): int(label) for label, author_id in enumerate(self.all_author_ids)}
         if author_ids is None:
-            self.author_ids = all_author_ids
+            self.author_ids = self.all_author_ids
 
         self.imgs = [p for author_id in self.author_ids for p in Path(path).rglob(f'{author_id}*') if p.is_file()]
+        self.labels = [img.stem.split('-')[0] for img in self.imgs]
         if max_samples is not None:
             self.imgs = sorted(self.imgs)
             random.shuffle(self.imgs)
             self.imgs = self.imgs[:max_samples]
-
-    def __getitem__(self, index):
-        img = self.imgs[index]
-        label = self.labels[img.stem.split('-')[0]]
-        img = Image.open(img).convert('RGB')
-        if self.transform is not None:
-            img = self.transform(img)
-        return img, label
 
 
 if __name__ == '__main__':

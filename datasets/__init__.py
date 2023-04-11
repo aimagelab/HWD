@@ -1,5 +1,5 @@
 from .base_dataset import BaseDataset
-from .fake_dataset import FakeDataset
+from .folder_dataset import FolderDataset
 from .CVL import CVLDataset
 from .IAM import IAMDataset
 from .leopardi import LeopardiDataset

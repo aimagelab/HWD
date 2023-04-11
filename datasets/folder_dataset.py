@@ -4,9 +4,9 @@ from PIL import Image
 import random
 
 
-class FakeDataset(BaseDataset):
+class FolderDataset(BaseDataset):
     def __init__(self, path, transform=None, author_ids=None, nameset=None, max_samples=None):
-        super(FakeDataset, self).__init__(path, transform, author_ids, nameset, max_samples)
+        super(FolderDataset, self).__init__(path, transform, author_ids, nameset, max_samples)
 
         self.path = Path(path)
         all_author_ids = {int(author_id.stem): author_id.stem for author_id in self.path.iterdir() if
