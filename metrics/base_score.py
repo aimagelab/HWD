@@ -6,7 +6,7 @@ class BaseScore:
         return self.distance(data1, data2)
 
     def digest(self, dataset, **kwargs):
-        raise NotImplementedError
+        return dataset
 
     def distance(self, data1, data2):
         raise NotImplementedError
