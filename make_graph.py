@@ -3,7 +3,8 @@ import torch
 import json
 import copy
 import warnings
-from metrics import FReDScore, FIDScore, FontScore, BaseScore, SeparabilityScore
+from metrics import FReDScore, FIDScore, FontScore, BaseScore
+from metrics import SilhouetteScore, CalinskiHarabaszScore, DaviesBouldinScore
 from datasets import BaseDataset, CVLDataset, IAMDataset, LeopardiDataset, NorhandDataset
 from datasets.transforms import fid_our_tranforms, fred_tranforms
 import matplotlib.pyplot as plt
@@ -135,7 +136,9 @@ if __name__ == '__main__':
     good_samples = data['good_samples']
     bad_samples = data['bad_samples']
 
-    # SeparabilityScore().distance(good_samples, bad_samples)
+    print(SilhouetteScore().distance(good_samples, bad_samples))
+    print(CalinskiHarabaszScore().distance(good_samples, bad_samples))
+    print(DaviesBouldinScore().distance(good_samples, bad_samples))
 
     kwargs = dict(alpha=0.5, bins=20, density=True, stacked=True)
 
