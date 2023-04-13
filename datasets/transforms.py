@@ -1,6 +1,7 @@
 from PIL import Image
 import numpy as np
-from torchvision.transforms import Compose, ToTensor
+import torch
+from torchvision.transforms import Compose, ToTensor, ColorJitter
 
 
 class ResizeHeight:
@@ -36,6 +37,7 @@ class ResizeSquare:
     def __call__(self, img):
         return img.resize((self.size, self.size), self.interpolation)
 
+
 class ToNumpy:
     def __call__(self, img):
         if isinstance(img, np.ndarray):
@@ -47,30 +49,60 @@ class ToNumpy:
         else:
             raise TypeError(f'Unknown type: {type(img)}')
 
+
 class Flatten:
     def __call__(self, img):
         return img.reshape(-1)
 
-fid_ganwriting_tranforms = Compose([
+
+fid_ganwriting_transforms = Compose([
     CropStart(64),
     ResizeSquare(64),
     ToTensor()
 ])
 
-fid_our_tranforms = Compose([
+
+def fid_ganwriting_color_transforms(val=0.5):
+    return Compose([
+        CropStart(64),
+        ResizeSquare(64),
+        ColorJitter(brightness=val, contrast=val, saturation=val, hue=val),
+        ToTensor()
+    ])
+
+
+fid_our_transforms = Compose([
     CropStartSquare(),
     ResizeSquare(64),
     ToTensor()
 ])
 
-gs_tranforms = Compose([
+
+def fid_our_color_transforms(val=0.5):
+    return Compose([
+        CropStartSquare(),
+        ResizeSquare(64),
+        ColorJitter(brightness=val, contrast=val, saturation=val, hue=val),
+        ToTensor()
+    ])
+
+
+gs_transforms = Compose([
     CropStart(64),
     # ResizeSquare(64),
     ToNumpy(),
     Flatten()
 ])
 
-fred_tranforms = Compose([
+fred_transforms = Compose([
     ResizeHeight(32),
     ToTensor()
 ])
+
+
+def fred_color_transforms(val=0.5):
+    return Compose([
+        ResizeHeight(32),
+        ColorJitter(brightness=val, contrast=val, saturation=val, hue=val),
+        ToTensor()
+    ])
