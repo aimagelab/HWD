@@ -2,11 +2,13 @@ import argparse
 import torch
 import json
 import copy
+import csv
+import random
 import warnings
 from metrics import FReDScore, FIDScore, FontScore, BaseScore
 from metrics import SilhouetteScore, CalinskiHarabaszScore, DaviesBouldinScore
-from datasets import BaseDataset, CVLDataset, IAMDataset, LeopardiDataset, NorhandDataset
-from datasets.transforms import fid_our_tranforms, fred_tranforms
+from datasets import BaseDataset, CVLDataset, IAMDataset, LeopardiDataset, NorhandDataset, RimesDataset, LAMDataset
+from datasets.transforms import fid_our_transforms, fred_transforms
 import matplotlib.pyplot as plt
 
 
@@ -29,13 +31,14 @@ def secure_compute_distance(data1, data2, metric, verbose=False):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', type=str, required=True, help='Path to the dataset')
-    parser.add_argument('--dataset', type=str, required=True, choices=['cvl', 'iam', 'leopardi', 'norhand'])
-    parser.add_argument('--score', type=str, required=True,
-                        choices=['fid', 'fred', 'fred_mean', 'sfred', 'sfred_mean', 'font'])
+    parser.add_argument('--csv_path', type=str, default='results.csv', help='Path to the csv file')
+    parser.add_argument('--dataset', type=str, required=True)
+    parser.add_argument('--score', type=str, required=True)
     parser.add_argument('--verbose', action='store_true', default=False)
     parser.add_argument('--sort', action='store_true', default=False)
     parser.add_argument('--skip_compute', action='store_true', default=False)
     parser.add_argument('--batch_size', type=int, default=128)
+    parser.add_argument('--seed', type=int, default=42)
     args = parser.parse_args()
 
     if not args.skip_compute:
@@ -47,30 +50,32 @@ if __name__ == '__main__':
             dataset = LeopardiDataset(args.path)
         elif args.dataset == 'norhand':
             dataset = NorhandDataset(args.path)
+        elif args.dataset == 'rimes':
+            dataset = RimesDataset(args.path)
+        elif args.dataset == 'lam':
+            dataset = LAMDataset(args.path)
         else:
-            raise ValueError('No dataset specified')
+            raise ValueError(f'Unknown dataset {args.dataset}')
         assert isinstance(dataset, BaseDataset)
 
         if args.score == 'fid':
             score = FIDScore()
-            dataset.transform = fid_our_tranforms
-        elif args.score == 'fred':
-            score = FReDScore(reduction=None)
-            dataset.transform = fred_tranforms
-        elif args.score == 'fred_mean':
-            score = FReDScore()
-            dataset.transform = fred_tranforms
-        elif args.score == 'sfred':
-            score = FReDScore(reduction=None, layers=1)
-            dataset.transform = fred_tranforms
-        elif args.score == 'sfred_mean':
-            score = FReDScore(layers=1)
-            dataset.transform = fred_tranforms
+            dataset.transform = fid_our_transforms
+        elif args.score.startswith('fred_mean'):
+            layers = args.score.split('_')[-1]
+            layers = int(layers) if layers.isdigit() else 4
+            score = FReDScore(layers=layers)
+            dataset.transform = fred_transforms
+        elif args.score.startswith('fred'):
+            layers = args.score.split('_')[-1]
+            layers = int(layers) if layers.isdigit() else 4
+            score = FReDScore(layers=layers, reduction=None)
+            dataset.transform = fred_transforms
         elif args.score == 'font':
             score = FontScore()
-            dataset.transform = fred_tranforms
+            dataset.transform = fred_transforms
         else:
-            raise ValueError('No score specified')
+            raise ValueError(f'Unknown score {args.score}')
         assert isinstance(score, BaseScore)
 
         if args.sort:
@@ -79,15 +84,21 @@ if __name__ == '__main__':
             warnings.warn('Dataset is not sorted, the official score will be different')
         dataset.is_sorted = True
 
-        good_samples = []
-        for author_id in dataset.all_author_ids:
-            dataset.author_ids = [author_id]
-            tmp_db1, tmp_db2 = dataset.split(0.5)
-            res = secure_compute(tmp_db1, tmp_db2, score, args.batch_size, args.verbose)
+        random.seed(args.seed)
+        torch.manual_seed(args.seed)
+        torch.cuda.manual_seed(args.seed)
+        torch.backends.cudnn.deterministic = True
 
-            if res is not None:
-                good_samples.append(res)
-            print(f'Done with {args.score} - {author_id}: {res}')
+        good_samples = []
+        for _ in range(len(dataset.all_author_ids) // 2):
+            for author_id in dataset.all_author_ids:
+                dataset.author_ids = [author_id]
+                tmp_db1, tmp_db2 = dataset.split(0.5)
+                res = secure_compute(tmp_db1, tmp_db2, score, args.batch_size, args.verbose)
+
+                if res is not None:
+                    good_samples.append(res)
+                print(f'Done with {args.score} - {author_id}: {res}')
         print('Done with good samples')
 
         bad_samples = []
@@ -97,7 +108,6 @@ if __name__ == '__main__':
             if len(dataset) == 0:
                 print(f'No samples for {author_id}')
                 continue
-            dataset.transform = fid_our_tranforms
             data = score.digest(dataset, batch_size=args.batch_size, verbose=args.verbose)
             intermediate_data.append(data)
             print(f'\rComputing activations {i + 1}/{len(dataset.all_author_ids)} ', end='', flush=True)
@@ -126,19 +136,24 @@ if __name__ == '__main__':
             'score': args.score,
         }
 
-        with open(f'{args.dataset}_{args.score}', 'w') as f:
+        with open(f'{args.dataset}_{args.score}.json', 'w') as f:
             json.dump(data, f)
         print('Done with saving')
 
-    with open(f'{args.dataset}_{args.score}', 'r') as f:
+    with open(f'{args.dataset}_{args.score}.json', 'r') as f:
         data = json.load(f)
 
     good_samples = data['good_samples']
     bad_samples = data['bad_samples']
 
-    print(SilhouetteScore().distance(good_samples, bad_samples))
-    print(CalinskiHarabaszScore().distance(good_samples, bad_samples))
-    print(DaviesBouldinScore().distance(good_samples, bad_samples))
+    silhouette_score = SilhouetteScore().distance(good_samples, bad_samples)
+    calinski_harabasz_score = CalinskiHarabaszScore().distance(good_samples, bad_samples)
+    davies_bouldin_score = DaviesBouldinScore().distance(good_samples, bad_samples)
+
+    with open(args.csv_path, 'a') as f:
+        writer = csv.writer(f)
+        writer.writerow([args.dataset, args.score, args.batch_size, args.seed, args.sort,
+                         silhouette_score, calinski_harabasz_score, davies_bouldin_score])
 
     kwargs = dict(alpha=0.5, bins=20, density=True, stacked=True)
 
