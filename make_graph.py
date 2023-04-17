@@ -5,6 +5,8 @@ import copy
 import csv
 import random
 import warnings
+import datetime
+from pathlib import Path
 from metrics import FReDScore, FIDScore, FontScore, BaseScore
 from metrics import SilhouetteScore, CalinskiHarabaszScore, DaviesBouldinScore
 from datasets import BaseDataset, CVLDataset, IAMDataset, LeopardiDataset, NorhandDataset, RimesDataset, LAMDataset
@@ -32,6 +34,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', type=str, required=True, help='Path to the dataset')
     parser.add_argument('--csv_path', type=str, default='results.csv', help='Path to the csv file')
+    parser.add_argument('--results_path', type=str, default='results', help='Path to the results folder')
     parser.add_argument('--dataset', type=str, required=True)
     parser.add_argument('--score', type=str, required=True)
     parser.add_argument('--verbose', action='store_true', default=False)
@@ -40,6 +43,9 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=128)
     parser.add_argument('--seed', type=int, default=42)
     args = parser.parse_args()
+
+    args.results_path = Path(args.results_path)
+    args.results_path.mkdir(exist_ok=True)
 
     if not args.skip_compute:
         if args.dataset == 'cvl':
@@ -136,11 +142,11 @@ if __name__ == '__main__':
             'score': args.score,
         }
 
-        with open(f'{args.dataset}_{args.score}.json', 'w') as f:
+        with open(args.results_path / f'{args.dataset}_{args.score}.json', 'w') as f:
             json.dump(data, f)
         print('Done with saving')
 
-    with open(f'{args.dataset}_{args.score}.json', 'r') as f:
+    with open(args.results_path / f'{args.dataset}_{args.score}.json', 'r') as f:
         data = json.load(f)
 
     good_samples = data['good_samples']
@@ -150,18 +156,18 @@ if __name__ == '__main__':
     calinski_harabasz_score = CalinskiHarabaszScore().distance(good_samples, bad_samples)
     davies_bouldin_score = DaviesBouldinScore().distance(good_samples, bad_samples)
 
-    with open(args.csv_path, 'a') as f:
+    with open(args.results_path / args.csv_path, 'a') as f:
         writer = csv.writer(f)
-        writer.writerow([args.dataset, args.score, args.batch_size, args.seed, args.sort,
+        writer.writerow([ args.dataset, args.score, args.batch_size, args.seed, args.sort,
                          silhouette_score, calinski_harabasz_score, davies_bouldin_score])
 
-    kwargs = dict(alpha=0.5, bins=20, density=True, stacked=True)
+    kwargs = dict(alpha=0.5, density=True, stacked=True)
 
     plt.hist(good_samples, **kwargs, color='g', label='Good')
     plt.hist(bad_samples, **kwargs, color='r', label='Bad')
     plt.gca().set(title=f'Frequency Histogram DATASET:{args.dataset} SCORE:{args.score}', ylabel='Frequency')
     plt.legend()
 
-    plt.savefig(f'{args.dataset}_{args.score}.png')
+    plt.savefig(args.results_path / f'{args.dataset}_{args.score}.png')
     print('Done graphing')
     exit()
