@@ -9,3 +9,4 @@ from .rimes import RimesDataset
 from .HKR import HKRDataset
 from .KHATT import KHATTDataset
 from .CHS import CHSDataset
+from .bangla_writing import BanglaWritingDataset

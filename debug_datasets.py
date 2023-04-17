@@ -1,14 +1,20 @@
 from datasets import CVLDataset, IAMDataset, LeopardiDataset, NorhandDataset, LAMDataset, RimesDataset, HKRDataset
-from datasets import KHATTDataset, CHSDataset
+from datasets import KHATTDataset, CHSDataset, BanglaWritingDataset
 
 
 def main():
+    # BanglaWriting
+    bangla_writing_path = r'/mnt/FoMo_AIISDH/datasets/BanglaWriting'
+    dataset = BanglaWritingDataset(bangla_writing_path)
+    print(len(dataset))
+    print(dataset[0][1])
+    return
+
     # CHS
     chs_path = r'/mnt/FoMo_AIISDH/datasets/CHS'
     dataset = CHSDataset(chs_path)
     print(len(dataset))
     print(dataset[0][1])
-    return
 
     #KHATT
     khatt_path = r'/mnt/FoMo_AIISDH/datasets/KHATT_Arabic'
