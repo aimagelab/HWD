@@ -56,7 +56,7 @@ class BaseDataset(Dataset):
 
     def split(self, ratio=0.5):
         """
-        Split the dataset in two halfs.
+        Split the dataset in two halves.
         """
         dataset1 = copy.deepcopy(self)
         dataset2 = copy.deepcopy(self)

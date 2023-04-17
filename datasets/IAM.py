@@ -29,6 +29,7 @@ class IAMDataset(BaseDataset):
             self.imgs = sorted(self.imgs)
             random.shuffle(self.imgs)
             self.imgs = self.imgs[:max_samples]
+            self.labels = self.labels[:max_samples]
 
 
 if __name__ == '__main__':
