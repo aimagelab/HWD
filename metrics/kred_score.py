@@ -28,7 +28,7 @@ class KReDScore(FReDScore):
         loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
         return self.get_activations(loader, verbose)
 
-    def distance(self, data1, data2):
+    def distance(self, data1, data2, **kwargs):
         features1 = dim_zero_cat(data1)
         features2 = dim_zero_cat(data2)
 
