@@ -9,14 +9,13 @@ import numpy as np
 def extract_words(path):
     imgs = list(p for p in (Path(path) / 'raw' / 'raw').rglob('*.jpg'))
     jsons = [Path(str(p).replace('jpg', 'json')) for p in imgs]
-    authors = set([p.stem.split('_')[0] for p in imgs])
 
-    ai = 0
+    a_idx = 0
     save_folder = (Path(path) / 'words')
     save_folder.mkdir(exist_ok=True)
     for img_path, json_path in zip(imgs, jsons):
-        print(f'[{ai}]/[{len(imgs)}] Processing {img_path}...')
-        ai += 1
+        print(f'[{a_idx}]/[{len(imgs)}] Processing {img_path}...')
+        a_idx += 1
         author = img_path.stem.split('_')[0]
         author_folder = save_folder / author
         author_folder.mkdir(exist_ok=True)
