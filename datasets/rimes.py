@@ -18,8 +18,16 @@ class RimesDataset(BaseDataset):
         super().__init__(path, transform, author_ids, nameset, max_samples)
 
         self.imgs = [p for p in Path(path).glob(f'lines/*')]
-        self.labels = [img.stem.split('-')[1] for img in self.imgs]
 
         self.all_author_ids = sorted(list(set(self.labels)))
         if author_ids is None:
             self.author_ids = self.all_author_ids
+
+        self.imgs = [img for img in self.imgs if img.stem.split('-')[1] in self.author_ids]
+        self.labels = [img.stem.split('-')[1] for img in self.imgs]
+
+        if max_samples is not None:
+            self.imgs = sorted(self.imgs)
+            random.shuffle(self.imgs)
+            self.imgs = self.imgs[:max_samples]
+            self.labels = self.labels[:max_samples]

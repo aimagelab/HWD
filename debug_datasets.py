@@ -1,7 +1,26 @@
-from datasets import CVLDataset, IAMDataset, LeopardiDataset, NorhandDataset, LAMDataset, RimesDataset
+from datasets import CVLDataset, IAMDataset, LeopardiDataset, NorhandDataset, LAMDataset, RimesDataset, HKRDataset
+from datasets import KHATTDataset, CHSDataset
 
 
 def main():
+    # CHS
+    chs_path = r'/mnt/FoMo_AIISDH/datasets/CHS'
+    dataset = CHSDataset(chs_path)
+    print(len(dataset))
+    print(dataset[0][1])
+    return
+
+    #KHATT
+    khatt_path = r'/mnt/FoMo_AIISDH/datasets/KHATT_Arabic'
+    dataset = KHATTDataset(khatt_path)
+    print(len(dataset))
+    print(dataset[0][1])
+
+    # HKR
+    hkr_path = r'/mnt/FoMo_AIISDH/datasets/HKR/20200923_Dataset_Words_Public'
+    dataset = HKRDataset(hkr_path)
+    print(len(dataset))
+    print(dataset[0][1])
 
     # Rimes
     rimes_path = r'/home/shared/datasets/Rimes'

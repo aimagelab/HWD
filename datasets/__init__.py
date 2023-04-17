@@ -6,3 +6,6 @@ from .leopardi import LeopardiDataset
 from .norhand import NorhandDataset
 from .LAM import LAMDataset
 from .rimes import RimesDataset
+from .HKR import HKRDataset
+from .KHATT import KHATTDataset
+from .CHS import CHSDataset
