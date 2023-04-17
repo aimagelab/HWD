@@ -7,9 +7,8 @@ import random
 import warnings
 import datetime
 from pathlib import Path
-from metrics import FReDScore, FIDScore, FontScore, BaseScore
-from metrics import SilhouetteScore, CalinskiHarabaszScore, DaviesBouldinScore
-from datasets import BaseDataset, CVLDataset, IAMDataset, LeopardiDataset, NorhandDataset, RimesDataset, LAMDataset
+from metrics import *
+from datasets import *
 from datasets.transforms import fid_our_transforms, fred_transforms
 import matplotlib.pyplot as plt
 
@@ -60,6 +59,14 @@ if __name__ == '__main__':
             dataset = RimesDataset(args.path)
         elif args.dataset == 'lam':
             dataset = LAMDataset(args.path)
+        elif args.dataset == 'chs':
+            dataset = CHSDataset(args.path)
+        elif args.dataset == 'hkr':
+            dataset = HKRDataset(args.path)
+        elif args.dataset == 'khatt':
+            dataset = KHATTDataset(args.path)
+        elif args.dataset == 'leo':
+            dataset = LeopardiDataset(args.path)
         else:
             raise ValueError(f'Unknown dataset {args.dataset}')
         assert isinstance(dataset, BaseDataset)
@@ -77,8 +84,21 @@ if __name__ == '__main__':
             layers = int(layers) if layers.isdigit() else 4
             score = FReDScore(layers=layers, reduction=None)
             dataset.transform = fred_transforms
+        elif args.score.startswith('kred_mean'):
+            layers = args.score.split('_')[-1]
+            layers = int(layers) if layers.isdigit() else 4
+            score = KReDScore(layers=layers)
+            dataset.transform = fred_transforms
+        elif args.score.startswith('kred'):
+            layers = args.score.split('_')[-1]
+            layers = int(layers) if layers.isdigit() else 4
+            score = KReDScore(layers=layers, reduction=None)
+            dataset.transform = fred_transforms
         elif args.score == 'font':
             score = FontScore()
+            dataset.transform = fred_transforms
+        elif args.score == 'kid':
+            score = KIDScore()
             dataset.transform = fred_transforms
         else:
             raise ValueError(f'Unknown score {args.score}')
@@ -165,7 +185,9 @@ if __name__ == '__main__':
 
     plt.hist(good_samples, **kwargs, color='g', label='Good')
     plt.hist(bad_samples, **kwargs, color='r', label='Bad')
-    plt.gca().set(title=f'Frequency Histogram DATASET:{args.dataset} SCORE:{args.score}', ylabel='Frequency')
+    plt.gca().set(title=f'DATASET:{args.dataset} SCORE:{args.score}\n'
+                        f'SIL={silhouette_score:.3f} CAL={calinski_harabasz_score:.3f} '
+                        f'DAV={davies_bouldin_score:.3f}', ylabel='Frequency')
     plt.legend()
 
     plt.savefig(args.results_path / f'{args.dataset}_{args.score}.png')
