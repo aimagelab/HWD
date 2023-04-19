@@ -29,6 +29,67 @@ def secure_compute_distance(data1, data2, metric, verbose=False):
         return None
 
 
+def get_dataset(dataset_name, path):
+    if dataset_name == 'cvl':
+        dataset = CVLDataset(path)
+    elif dataset_name == 'iam':
+        dataset = IAMDataset(path)
+    elif dataset_name == 'leopardi':
+        dataset = LeopardiDataset(path)
+    elif dataset_name == 'norhand':
+        dataset = NorhandDataset(path)
+    elif dataset_name == 'rimes':
+        dataset = RimesDataset(path)
+    elif dataset_name == 'lam':
+        dataset = LAMDataset(path)
+    elif dataset_name == 'chs':
+        dataset = CHSDataset(path)
+    elif dataset_name == 'hkr':
+        dataset = HKRDataset(path)
+    elif dataset_name == 'khatt':
+        dataset = KHATTDataset(path)
+    elif dataset_name == 'leo':
+        dataset = LeopardiDataset(path)
+    else:
+        raise ValueError(f'Unknown dataset {dataset_name}')
+    assert isinstance(dataset, BaseDataset)
+    return dataset
+
+def get_score(score_name, dataset):
+    if score_name == 'fid':
+        score = FIDScore()
+        dataset.transform = fid_our_transforms
+    elif score_name.startswith('fred_mean'):
+        layers = score_name.split('_')[-1]
+        layers = int(layers) if layers.isdigit() else 4
+        score = FReDScore(layers=layers)
+        dataset.transform = fred_transforms
+    elif score_name.startswith('fred'):
+        layers = score_name.split('_')[-1]
+        layers = int(layers) if layers.isdigit() else 4
+        score = FReDScore(layers=layers, reduction=None)
+        dataset.transform = fred_transforms
+    elif score_name.startswith('kred_mean'):
+        layers = score_name.split('_')[-1]
+        layers = int(layers) if layers.isdigit() else 4
+        score = KReDScore(layers=layers)
+        dataset.transform = fred_transforms
+    elif score_name.startswith('kred'):
+        layers = score_name.split('_')[-1]
+        layers = int(layers) if layers.isdigit() else 4
+        score = KReDScore(layers=layers, reduction=None)
+        dataset.transform = fred_transforms
+    elif score_name == 'font':
+        score = FontScore()
+        dataset.transform = fred_transforms
+    elif score_name == 'kid':
+        score = KIDScore()
+        dataset.transform = fred_transforms
+    else:
+        raise ValueError(f'Unknown score {args.score}')
+    assert isinstance(score, BaseScore)
+    return score
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--path', type=str, required=True, help='Path to the dataset')
@@ -39,7 +100,7 @@ if __name__ == '__main__':
     parser.add_argument('--verbose', action='store_true', default=False)
     parser.add_argument('--sort', action='store_true', default=False)
     parser.add_argument('--skip_compute', action='store_true', default=False)
-    parser.add_argument('--batch_size', type=int, default=128)
+    parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--seed', type=int, default=42)
     args = parser.parse_args()
 
@@ -47,62 +108,8 @@ if __name__ == '__main__':
     args.results_path.mkdir(exist_ok=True)
 
     if not args.skip_compute:
-        if args.dataset == 'cvl':
-            dataset = CVLDataset(args.path)
-        elif args.dataset == 'iam':
-            dataset = IAMDataset(args.path)
-        elif args.dataset == 'leopardi':
-            dataset = LeopardiDataset(args.path)
-        elif args.dataset == 'norhand':
-            dataset = NorhandDataset(args.path)
-        elif args.dataset == 'rimes':
-            dataset = RimesDataset(args.path)
-        elif args.dataset == 'lam':
-            dataset = LAMDataset(args.path)
-        elif args.dataset == 'chs':
-            dataset = CHSDataset(args.path)
-        elif args.dataset == 'hkr':
-            dataset = HKRDataset(args.path)
-        elif args.dataset == 'khatt':
-            dataset = KHATTDataset(args.path)
-        elif args.dataset == 'leo':
-            dataset = LeopardiDataset(args.path)
-        else:
-            raise ValueError(f'Unknown dataset {args.dataset}')
-        assert isinstance(dataset, BaseDataset)
-
-        if args.score == 'fid':
-            score = FIDScore()
-            dataset.transform = fid_our_transforms
-        elif args.score.startswith('fred_mean'):
-            layers = args.score.split('_')[-1]
-            layers = int(layers) if layers.isdigit() else 4
-            score = FReDScore(layers=layers)
-            dataset.transform = fred_transforms
-        elif args.score.startswith('fred'):
-            layers = args.score.split('_')[-1]
-            layers = int(layers) if layers.isdigit() else 4
-            score = FReDScore(layers=layers, reduction=None)
-            dataset.transform = fred_transforms
-        elif args.score.startswith('kred_mean'):
-            layers = args.score.split('_')[-1]
-            layers = int(layers) if layers.isdigit() else 4
-            score = KReDScore(layers=layers)
-            dataset.transform = fred_transforms
-        elif args.score.startswith('kred'):
-            layers = args.score.split('_')[-1]
-            layers = int(layers) if layers.isdigit() else 4
-            score = KReDScore(layers=layers, reduction=None)
-            dataset.transform = fred_transforms
-        elif args.score == 'font':
-            score = FontScore()
-            dataset.transform = fred_transforms
-        elif args.score == 'kid':
-            score = KIDScore()
-            dataset.transform = fred_transforms
-        else:
-            raise ValueError(f'Unknown score {args.score}')
-        assert isinstance(score, BaseScore)
+        dataset = get_dataset(args.dataset, args.path)
+        score = get_score(args.score, dataset)
 
         if args.sort:
             dataset.sort(verbose=args.verbose)
@@ -120,11 +127,15 @@ if __name__ == '__main__':
             for author_id in dataset.all_author_ids:
                 dataset.author_ids = [author_id]
                 tmp_db1, tmp_db2 = dataset.split(0.5)
+                print(f'\rComputing {args.score} - {author_id} {len(dataset): >4d}: ', end='')
+                if len(tmp_db1) == 0 or len(tmp_db2) == 0:
+                    print('No enough samples')
+                    continue
                 res = secure_compute(tmp_db1, tmp_db2, score, args.batch_size, args.verbose)
 
                 if res is not None:
                     good_samples.append(res)
-                print(f'Done with {args.score} - {author_id}: {res}')
+                print(f'{res:.03f}')
         print('Done with good samples')
 
         bad_samples = []
