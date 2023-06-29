@@ -33,20 +33,10 @@ def extract_words(path):
 
 
 class BanglaWritingDataset(BaseDataset):
-    def __init__(self, path, transform=None, author_ids=None, nameset=None, max_samples=None):
-        super().__init__(path, transform, author_ids, nameset, max_samples)
+    def __init__(self, path, transform=None):
+        super().__init__(path, transform, None)
 
         path = Path(path) / 'words'
-        self.all_author_ids = sorted([p.stem for p in path.iterdir()])
-        if author_ids is None:
-            self.author_ids = self.all_author_ids
-
-        self.imgs = [p for author_id in self.author_ids for p in path.glob(f'{author_id}/*.jpg')]
-
-        self.labels = [p.parent for p in self.imgs]
-
-        if max_samples is not None:
-            self.imgs = sorted(self.imgs)
-            random.shuffle(self.imgs)
-            self.imgs = self.imgs[:max_samples]
-            self.labels = self.labels[:max_samples]
+        self.imgs = list(path.rglob('*.jpg'))
+        self.labels = [img.stem.split('_')[0] for img in self.imgs]
+        self.author_ids = sorted(set(self.labels))

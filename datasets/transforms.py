@@ -14,6 +14,18 @@ class ResizeHeight:
         return img.resize((int(self.height * w / h), self.height), self.interpolation)
 
 
+class PaddingMin:
+    def __init__(self, height, width):
+        self.height = height
+        self.width = width
+
+    def __call__(self, img):
+        c, w, h = img.shape
+        width = max(self.width, w)
+        height = max(self.height, h)
+        return torch.nn.functional.pad(img, (0, height - h, 0, width - w), mode='constant', value=0)
+
+
 class CropStart:
     def __init__(self, width):
         self.width = width
@@ -77,6 +89,11 @@ fid_our_transforms = Compose([
     ToTensor()
 ])
 
+fid_whole_transforms = Compose([
+    ResizeHeight(299),
+    ToTensor()
+])
+
 
 def fid_our_color_transforms(val=0.5):
     return Compose([
@@ -96,6 +113,24 @@ gs_transforms = Compose([
 
 fred_transforms = Compose([
     ResizeHeight(32),
+    ToTensor()
+])
+
+fved_transforms = Compose([
+    ResizeHeight(32),
+    ToTensor(),
+    PaddingMin(32, 32),
+])
+
+fved_beginning_transforms = Compose([
+    ResizeHeight(32),
+    CropStartSquare(),
+    ToTensor(),
+    PaddingMin(32, 32),
+])
+
+fred_64_transforms = Compose([
+    ResizeHeight(64),
     ToTensor()
 ])
 

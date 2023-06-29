@@ -8,7 +8,15 @@ from .fid.inception import InceptionV3
 from .fid.fid_score_crop64x64 import calculate_frechet_distance, calculate_fid_given_paths
 
 
-class FIDScore(BaseScore):
+class MeanHeight(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, x):
+        return torch.mean(x, dim=2)
+
+
+class FIDWholeScore(BaseScore):
     def __init__(self, dims=2048, device='cuda'):
         self.dims = dims
         self.device = device
@@ -18,6 +26,9 @@ class FIDScore(BaseScore):
         model = InceptionV3([block_idx])
         self.model = model.to(self.device)
 
+        self.model.resize_input = False
+        self.model.blocks[-1][-1] = MeanHeight()
+
     def __call__(self, dataset1, dataset2, batch_size=128, verbose=False, ganwriting_script=False):
         if ganwriting_script:
             return self._compute_ganwriting_original_script(batch_size, verbose)
@@ -25,7 +36,7 @@ class FIDScore(BaseScore):
 
     def digest(self, dataset, batch_size=128, verbose=False):
         loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-        ids, labels, features = FIDScore.get_activations(loader, self.model, self.device, verbose)
+        ids, labels, features = FIDWholeScore.get_activations(loader, self.model, self.device, verbose)
         return ProcessedDataset(ids, labels, features)
 
     def distance(self, data1, data2, **kwargs):
@@ -59,24 +70,22 @@ class FIDScore(BaseScore):
 
         features = []
         labels = []
+        ids = []
         for i, (images, authors) in enumerate(loader):
             images = images.to(device)
 
             pred = model(images)[0]
 
-            if pred.size(2) != 1 or pred.size(3) != 1:
-                pred = adaptive_avg_pool2d(pred, output_size=(1, 1))
-
-            features.append(pred.squeeze(-1, -2).cpu())
-            labels.append(list(authors))
+            features.append(pred[0, :, ::10].cpu())
+            labels.append(list(authors) * features[-1].shape[1])
+            ids.append([i, ] * features[-1].shape[1])
             if verbose:
                 print(f'\rComputing activations {i + 1}/{len(loader)}', end='', flush=True)
 
         if verbose:
             print(' OK')
 
-        features = torch.cat(features, dim=0)
+        features = torch.cat(features, dim=-1).T
         labels = sum(labels, [])
-        ids = torch.arange(len(labels))
+        ids = torch.Tensor(sum(ids, [])).long()
         return ids, labels, features
-

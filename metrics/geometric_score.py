@@ -5,9 +5,7 @@ from torch.utils.data import DataLoader
 
 
 class GeometricScore(BaseScore):
-    def __init__(self, dataset1, dataset2, n=100, L_0=32, i_max=10, gamma=1.0 / 8):
-        self.dataset1 = dataset1
-        self.dataset2 = dataset2
+    def __init__(self, n=100, L_0=32, i_max=10, gamma=1.0 / 128):
         self.n = n
         self.L_0 = L_0
         self.i_max = i_max
@@ -25,7 +23,7 @@ class GeometricScore(BaseScore):
             print(' OK')
         return np.concatenate(tmp_images, axis=0)
 
-    def digest(self, dataset, batch_size=128, verbose=False, parallel=False):
+    def digest(self, dataset, batch_size=1, verbose=False, parallel=False):
         loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
         data = self._concatenate_loader(loader, verbose)
 
@@ -35,4 +33,4 @@ class GeometricScore(BaseScore):
         return gs.rlts(data, n=self.n, L_0=self.L_0, i_max=self.i_max, gamma=self.gamma, verbose=verbose)
 
     def distance(self, data1, data2):
-        raise gs.geom_score(data1, data2)
+        return gs.geom_score(data1, data2)

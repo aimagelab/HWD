@@ -1,11 +1,11 @@
 import torch
 from torchmetrics.image.kid import poly_mmd
 from torchmetrics.utilities.data import dim_zero_cat
-from .fred_score import FReDScore
+from .fved_score import FVeDScore
 
 
-class KReDScore(FReDScore):
-    def __init__(self, checkpoint_path='metrics/fred/resnet_18_pretrained.pth', device='cuda', reduction='mean',
+class KVeDScore(FVeDScore):
+    def __init__(self, checkpoint_path='metrics/fved/vgg_16_pretrained.pth', device='cuda', reduction='mean',
                  layers=4, subsets=100, subset_size=1000, degree=3, gamma=None, coef=1.0):
         super().__init__(checkpoint_path, device, reduction, layers)
         self.subsets = subsets

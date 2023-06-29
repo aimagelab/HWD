@@ -6,7 +6,7 @@ import random
 
 
 class NorhandDataset(BaseDataset):
-    def __init__(self, path, transform=None, author_ids=None, nameset=None, max_samples=None):
+    def __init__(self, path, transform=None, nameset=None):
         """
         Args:
             path (string): Path folder of the dataset.
@@ -15,7 +15,7 @@ class NorhandDataset(BaseDataset):
             author_ids (list, optional): List of authors to consider.
             nameset (string, optional): Name of the dataset.
         """
-        super().__init__(path, transform, author_ids, nameset, max_samples)
+        super().__init__(path, transform, nameset)
 
         authors = set()
         pages_and_authors = {}
@@ -29,19 +29,11 @@ class NorhandDataset(BaseDataset):
                 authors.add(row[2])
                 pages_and_authors[row[0]] = row[2]
 
-        self.all_author_ids = sorted(list(authors))
-        if author_ids is None:
-            self.author_ids = self.all_author_ids
+        self.author_ids = sorted(list(authors))
 
         # self.labels = {str(author): int(label) for label, author in enumerate(authors)}
         self.imgs = [p for p in Path(path).rglob(f'*.jpg')]
         self.labels = [pages_and_authors[img.stem.split('_')[0]] for img in self.imgs]
-
-        if max_samples is not None:
-            self.imgs = sorted(self.imgs)
-            random.shuffle(self.imgs)
-            self.imgs = self.imgs[:max_samples]
-            self.labels = self.labels[:max_samples]
 
 
 if __name__ == '__main__':

@@ -66,9 +66,9 @@ def rlts(X, L_0=64, gamma=None, i_max=100, n=1000, verbose=False):
     """
     rlts = np.zeros((n, i_max))
     for i in range(n):
-        rlts[i, :] = rlt(X, L_0, gamma, i_max)
         if verbose:
-            print(f'\rComputing RLT {i}/{n}', end='', flush=True)
+            print(f'\rComputing RLT {i+1}/{n}', end='', flush=True)
+        rlts[i, :] = rlt(X, L_0, gamma, i_max)
 
     if verbose:
         print(' OK')

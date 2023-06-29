@@ -1,7 +1,9 @@
-from .fred_score import FReDScore
+from .fved_score import FVeDScore
+from .fid_score import FIDScore
 import torch
 
-class FontScore(FReDScore):
+
+class FIDEucScore(FIDScore):
     def distance(self, data1, data2, **kwargs):
         tmp_1 = data1.features.mean(dim=0).unsqueeze(0)
         tmp_2 = data2.features.mean(dim=0).unsqueeze(0)
