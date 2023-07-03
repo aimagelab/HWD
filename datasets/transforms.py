@@ -116,7 +116,7 @@ fred_transforms = Compose([
     ToTensor()
 ])
 
-fved_transforms = Compose([
+hwd_transforms = Compose([
     ResizeHeight(32),
     ToTensor(),
     PaddingMin(32, 32),

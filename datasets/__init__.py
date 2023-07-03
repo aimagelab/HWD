@@ -7,7 +7,7 @@ from .norhand import NorhandDataset
 from .lam import LAMDataset
 from .rimes import RimesDataset
 from .khatt import KHATTDataset
-from .chs import CHSDataset
+from .CHS import CHSDataset
 from .saint_gall import SaintGallDataset
 from .washington import WashingtonDataset
 from .bangla_writing import BanglaWritingDataset

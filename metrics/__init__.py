@@ -13,6 +13,7 @@ from .kved_score import KVeDScore
 from .base_score import BaseScore, ProcessedDataset
 from .font_score import FontScore
 from .vont_score import VontScore
+from .hwd import HWD
 from .fid_whole_score import FIDWholeScore
 from .fid_whole_euc_score import FIDWholeEucScore
 from .fved_imagenet_score import FVeDImageNetScore

@@ -8,7 +8,7 @@ from pathlib import Path
 from metrics import *
 from datasets import *
 from torch.cuda import OutOfMemoryError
-from datasets.transforms import fid_our_transforms, fred_transforms, fved_transforms, fved_beginning_transforms, fid_whole_transforms
+from datasets.transforms import fid_our_transforms, fred_transforms, hwd_transforms, fved_beginning_transforms, fid_whole_transforms
 import matplotlib.pyplot as plt
 
 
@@ -117,27 +117,27 @@ def get_score(score_name, dataset, device='cuda'):
         score = KReDScore(reduction=None, **kwargs)
     elif score_name.startswith('kved_mean'):
         score = KVeDScore(**kwargs)
-        dataset.transform = fved_transforms
+        dataset.transform = hwd_transforms
     elif score_name.startswith('kved'):
         score = KVeDScore(reduction=None, **kwargs)
-        dataset.transform = fved_transforms
+        dataset.transform = hwd_transforms
     elif score_name.startswith('tred_mean'):
         score = TReDScore(**kwargs)
     elif score_name.startswith('tved_mean'):
         score = TVeDScore(**kwargs)
-        dataset.transform = fved_transforms
+        dataset.transform = hwd_transforms
     elif score_name.startswith('fved_mean'):
         score = FVeDScore(**kwargs)
-        dataset.transform = fved_transforms
+        dataset.transform = hwd_transforms
     elif score_name.startswith('fved'):
         score = FVeDScore(reduction=None, **kwargs)
-        dataset.transform = fved_transforms
+        dataset.transform = hwd_transforms
     elif score_name.startswith('fved_imagenet_beginning'):
         score = FVeDImageNetScore(reduction=None, **kwargs)
         dataset.transform = fved_beginning_transforms
     elif score_name.startswith('fved_imagenet'):
         score = FVeDImageNetScore(reduction=None, **kwargs)
-        dataset.transform = fved_transforms
+        dataset.transform = hwd_transforms
     elif score_name.startswith('fved_beginning'):
         score = FVeDScore(reduction=None, **kwargs)
         dataset.transform = fved_beginning_transforms
@@ -153,13 +153,13 @@ def get_score(score_name, dataset, device='cuda'):
         dataset.transform = fved_beginning_transforms
     elif score_name.startswith('vont_imagenet'):
         score = VontImageNetScore(reduction=None, **kwargs)
-        dataset.transform = fved_transforms
+        dataset.transform = hwd_transforms
     elif score_name.startswith('vont_mean'):
         score = VontScore(**kwargs)
-        dataset.transform = fved_transforms
+        dataset.transform = hwd_transforms
     elif score_name.startswith('vont'):
         score = VontScore(reduction=None, **kwargs)
-        dataset.transform = fved_transforms
+        dataset.transform = hwd_transforms
     else:
         raise ValueError(f'Unknown score {score_name}')
     assert isinstance(score, BaseScore)

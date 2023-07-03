@@ -1,6 +1,6 @@
 from metrics import *
 from datasets import *
-from datasets.transforms import fved_transforms, fid_our_transforms, gs_transforms
+from datasets.transforms import hwd_transforms, fid_our_transforms, gs_transforms
 import random
 
 
@@ -32,7 +32,7 @@ def compute(src1, src2, score_class, transforms, max_len=25766):
 print(fake_path)
 print(real_path)
 geometric_score = compute(fake_path, real_path, GeometricScore, gs_transforms)
-vont_score = compute(fake_path, real_path, VontScore, fved_transforms)
+vont_score = compute(fake_path, real_path, VontScore, hwd_transforms)
 fid_score = compute(fake_path, real_path, FIDScore, fid_our_transforms)
 kid_score = compute(fake_path, real_path, KIDScore, fid_our_transforms)
 fid_inf_score = compute(fake_path, real_path, FIDInfScore, fid_our_transforms)

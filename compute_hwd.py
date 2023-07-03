@@ -1,6 +1,6 @@
 from metrics import *
 from datasets import *
-from datasets.transforms import fved_transforms, fid_our_transforms, gs_transforms
+from datasets.transforms import hwd_transforms, fid_our_transforms, gs_transforms
 import random
 
 
@@ -39,6 +39,6 @@ def compute(src1, src2, score_class, transforms, max_len=25766):
 
 print(fake_path)
 print(real_path)
-vont_score = compute(fake_path, real_path, VontScore, fved_transforms, None)
+vont_score = compute(fake_path, real_path, VontScore, hwd_transforms, None)
 
 print('Done')
