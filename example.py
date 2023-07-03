@@ -1,4 +1,5 @@
 from metrics import HWDScore, FIDScore, KIDScore
+from metrics import ProcessedDataset
 from datasets import FolderDataset
 
 real_dataset = FolderDataset(r'C:\Users\Vit\Desktop\Qualitativi VATR\168')

@@ -72,6 +72,12 @@ class ProcessedDataset:
         self.ids = self.ids.to(device)
         self.features = self.features.to(device)
         return self
+    
+    def cpu(self):
+        return self.to('cpu')
+
+    def cuda(self):
+        return self.to('cuda')
 
 
 class BaseScore:
