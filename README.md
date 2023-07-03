@@ -1,5 +1,5 @@
 # Installation
-This is the list of python packages that we need to compute the score
+This is the list of python packages that we need to compute the score on windows with Python 3.9.13
 ```console
 pip3 install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu117
 pip3 install opencv-python==4.7.0.72
