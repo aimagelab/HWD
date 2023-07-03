@@ -21,10 +21,10 @@ class UnFlatten(torch.nn.Module):
 
 
 class FReDScore(BaseScore):
-    def __init__(self, checkpoint_path='metrics/fred/resnet_18_pretrained.pth', device='cuda', reduction='mean',
+    def __init__(self, url='https://github.com/aimagelab/font_square/releases/download/VGG-16/VGG16_class_10400.pth', device='cpu', reduction='mean',
                  layers=4):
         super().__init__()
-        self.checkpoint_path = checkpoint_path
+        self.url = url
         self.device = device
         self.reduction = reduction
         self.layers = layers

@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 
 class KIDScore(BaseScore):
     def __init__(self, feature=2048, subsets=100, subset_size=1000, degree=3, gamma=None, coef=1.0,
-                 reset_real_features=True, normalize=True, device='cuda'):
+                 reset_real_features=True, normalize=True, device='cpu'):
 
         self.inception = NoTrainInceptionV3(name="inception-v3-compat", features_list=[str(feature)])
         self.inception = self.inception.to(device)

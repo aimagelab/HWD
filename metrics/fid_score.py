@@ -1,6 +1,6 @@
 from .base_score import BaseScore, ProcessedDataset
 import torch
-import warnings
+from datasets.transforms import fid_our_transforms
 from torch.nn.functional import adaptive_avg_pool2d
 from torch.utils.data import DataLoader
 
@@ -9,7 +9,7 @@ from .fid.fid_score_crop64x64 import calculate_frechet_distance, calculate_fid_g
 
 
 class FIDScore(BaseScore):
-    def __init__(self, dims=2048, device='cuda'):
+    def __init__(self, dims=2048, device='cpu'):
         self.dims = dims
         self.device = device
 
@@ -17,6 +17,7 @@ class FIDScore(BaseScore):
 
         model = InceptionV3([block_idx])
         self.model = model.to(self.device)
+        self.transform = fid_our_transforms
 
     def __call__(self, dataset1, dataset2, batch_size=128, verbose=False, ganwriting_script=False):
         if ganwriting_script:
@@ -24,6 +25,7 @@ class FIDScore(BaseScore):
         return super().__call__(dataset1, dataset2, batch_size=128, verbose=verbose)
 
     def digest(self, dataset, batch_size=128, verbose=False):
+        dataset.transform = self.transform
         loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
         ids, labels, features = FIDScore.get_activations(loader, self.model, self.device, verbose)
         return ProcessedDataset(ids, labels, features)

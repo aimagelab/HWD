@@ -17,14 +17,14 @@ class AdjustDims(torch.nn.Module):
 
 
 class FVeDScore(FReDScore):
-    def __init__(self, checkpoint_path='metrics/fved/vgg_16_pretrained.pth', device='cuda', reduction='mean', layers=4):
-        super().__init__(checkpoint_path, device, reduction, layers)
+    def __init__(self, url='https://github.com/aimagelab/font_square/releases/download/VGG-16/VGG16_class_10400.pth', device='cpu', reduction='mean', layers=4):
+        super().__init__(url, device, reduction, layers)
 
     def load_model(self):
-        checkpoint = torch.load(self.checkpoint_path)
+        checkpoint = torch.hub.load_state_dict_from_url(self.url, progress=True, map_location=self.device)
 
         model = models.vgg16(num_classes=10400)
-        model.load_state_dict(checkpoint['model'])
+        model.load_state_dict(checkpoint)
 
         model_breakpoint = [4, 9, 16, 23, 30][self.layers] + 1
         modules = list(model.features.children())

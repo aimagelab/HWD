@@ -1,7 +1,7 @@
 from .base_dataset import BaseDataset
 from pathlib import Path
 from PIL import Image
-from transforms import hwd_transforms
+from .transforms import hwd_transforms
 
 
 class FolderDataset(BaseDataset):

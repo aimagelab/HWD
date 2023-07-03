@@ -75,6 +75,10 @@ class ProcessedDataset:
 
 
 class BaseScore:
+    def __init__(self):
+        self.model = None
+        self.device = None
+
     def __call__(self, dataset1, dataset2, **kwargs) -> float:
         """
         Compute the distance between two datasets
@@ -92,3 +96,15 @@ class BaseScore:
 
     def distance(self, data1, data2) -> float:
         raise NotImplementedError
+    
+    def to(self, device):
+        self.device = torch.device(device)
+        if self.model is not None:
+            self.model = self.model.to(device)
+        return self
+    
+    def cpu(self):
+        return self.to('cpu')
+    
+    def cuda(self):
+        return self.to('cuda')
