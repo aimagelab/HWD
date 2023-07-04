@@ -4,7 +4,7 @@ import numpy as np
 import copy
 
 class BaseDataset(Dataset):
-    def __init__(self, path, transform=None, nameset=None):
+    def __init__(self, path, transform=None, nameset=None, preprocess=None):
         """
         Args:
             path (string): Path folder of the dataset.
@@ -21,6 +21,7 @@ class BaseDataset(Dataset):
         self.imgs = []
         self.labels = []
         self.transform = transform
+        self.preprocess = preprocess
         self.nameset = nameset
         self.is_sorted = False
         self.author_ids = []
@@ -36,6 +37,8 @@ class BaseDataset(Dataset):
         img = self.imgs[index]
         label = self.labels[index]
         img = Image.open(img).convert('RGB')
+        if self.preprocess is not None:
+            img = self.preprocess(img)
         if self.transform is not None:
             img = self.transform(img)
         return img, label

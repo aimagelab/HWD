@@ -3,11 +3,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import models
 
-try:
-    from torchvision.models.utils import load_state_dict_from_url
-except ImportError:
-    from torch.utils.model_zoo import load_url as load_state_dict_from_url
-
 # Inception weights ported to Pytorch from
 # http://download.tensorflow.org/models/image/imagenet/inception-2015-12-05.tgz
 FID_WEIGHTS_URL = 'https://github.com/mseitzer/pytorch-fid/releases/download/fid_weights/pt_inception-2015-12-05-6726825d.pth'
@@ -29,11 +24,11 @@ class InceptionV3(nn.Module):
     }
 
     def __init__(self,
+                 url=FID_WEIGHTS_URL,
                  output_blocks=[DEFAULT_BLOCK_INDEX],
                  resize_input=True,
                  normalize_input=True,
-                 requires_grad=False,
-                 use_fid_inception=True):
+                 requires_grad=False):
         """Build pretrained InceptionV3
 
         Parameters
@@ -75,11 +70,7 @@ class InceptionV3(nn.Module):
             'Last possible output block index is 3'
 
         self.blocks = nn.ModuleList()
-
-        if use_fid_inception:
-            inception = fid_inception_v3()
-        else:
-            inception = models.inception_v3(pretrained=True, init_weights=True)
+        inception = fid_inception_v3(url)
 
         # Block 0: input to maxpool1
         block0 = [
@@ -163,7 +154,7 @@ class InceptionV3(nn.Module):
         return outp
 
 
-def fid_inception_v3():
+def fid_inception_v3(url):
     """Build pretrained Inception model for FID computation
 
     The Inception model for FID computation uses a different set of weights
@@ -183,8 +174,11 @@ def fid_inception_v3():
     inception.Mixed_7b = FIDInceptionE_1(1280)
     inception.Mixed_7c = FIDInceptionE_2(2048)
 
-    state_dict = load_state_dict_from_url(FID_WEIGHTS_URL, progress=True)
-    inception.load_state_dict(state_dict)
+    inception.dropout = nn.Identity()
+    inception.fc = nn.Identity()
+    
+    state_dict = torch.hub.load_state_dict_from_url(url, progress=True)
+    inception.load_state_dict(state_dict, strict=False)
     return inception
 
 

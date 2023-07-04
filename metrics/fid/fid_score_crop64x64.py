@@ -8,6 +8,7 @@ import numpy as np
 import torch
 from scipy import linalg
 from torch.nn.functional import adaptive_avg_pool2d
+import warnings
 
 try:
     from tqdm import tqdm
@@ -99,7 +100,7 @@ def get_activations(files, model, batch_size=50, dims=2048,
     return pred_arr
 
 
-def calculate_frechet_distance(mu1, sigma1, mu2, sigma2, eps=1e-6):
+def calculate_frechet_distance(mu1, sigma1, mu2, sigma2, eps=1e-6, raise_on_error=False):
     """Numpy implementation of the Frechet Distance.
     The Frechet distance between two multivariate Gaussians X_1 ~ N(mu_1, C_1)
     and X_2 ~ N(mu_2, C_2) is
@@ -147,7 +148,10 @@ def calculate_frechet_distance(mu1, sigma1, mu2, sigma2, eps=1e-6):
     if np.iscomplexobj(covmean):
         if not np.allclose(np.diagonal(covmean).imag, 0, atol=1e-3):
             m = np.max(np.abs(covmean.imag))
-            raise ValueError('Imaginary component {}'.format(m))
+            if raise_on_error:
+                raise ValueError('Imaginary component {}'.format(m))
+            else:
+                warnings.warn('Imaginary component {}'.format(m))
         covmean = covmean.real
 
     tr_covmean = np.trace(covmean)

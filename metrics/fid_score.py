@@ -55,7 +55,7 @@ class FIDScore(BaseScore):
     #     return mu, sigma
 
     @staticmethod
-    @torch.no_grad()
+    @torch.inference_mode()
     def get_activations(loader, model, device, verbose=False):
         model.eval()
 

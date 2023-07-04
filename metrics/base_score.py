@@ -78,35 +78,53 @@ class ProcessedDataset:
 
     def cuda(self):
         return self.to('cuda')
+    
+
+class BaseBackbone:
+    def __init__(self, device='cpu'):
+        self.device = device
+
+    @torch.no_grad()
+    def __call__(self, dataset) -> ProcessedDataset:
+        """
+        Extract features from a dataset
+        :param dataset: dataset to extract features from
+        :return: dataset with extracted features
+        """
+        raise NotImplementedError
+
+class BaseDistance:
+    def __init__(self):
+        pass
+
+    def __call__(self, data1, data2) -> float:
+        """
+        Compute the distance between two datasets
+        :param data1: first dataset
+        :param data2: second dataset
+        :return: the distance between the two datasets
+        """
+        raise NotImplementedError
 
 
 class BaseScore:
-    def __init__(self):
-        self.model = None
-        self.device = None
+    def __init__(self, backbone, distance, transforms):
+        self.backbone = backbone
+        self.distance = distance
+        self.transforms = transforms
 
     def __call__(self, dataset1, dataset2, **kwargs) -> float:
-        """
-        Compute the distance between two datasets
-        :param dataset1: first dataset
-        :param dataset2: second dataset
-        :param kwargs: extra parameters to pass to the digest function
-        :return: the distance between the two datasets
-        """
         data1 = self.digest(dataset1, **kwargs)
         data2 = self.digest(dataset2, **kwargs)
         return self.distance(data1, data2)
 
     def digest(self, dataset, **kwargs) -> ProcessedDataset:
-        raise NotImplementedError
-
-    def distance(self, data1, data2) -> float:
-        raise NotImplementedError
+        dataset.transform = self.transforms
+        return self.backbone(dataset, **kwargs)
     
     def to(self, device):
-        self.device = torch.device(device)
-        if self.model is not None:
-            self.model = self.model.to(device)
+        device = torch.device(device)
+        self.backbone.to(device)
         return self
     
     def cpu(self):
