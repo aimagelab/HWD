@@ -31,7 +31,7 @@ result = score(real_dataset, fake_dataset)
 print('FID:', result)
 ```
 
-To store intermediate results is it possible to save them:
+To store intermediate results is it possible to use the `ProcessedDataset`:
 ```python
 from metrics import HWDScore, ProcessedDataset
 from datasets import FolderDataset
@@ -40,16 +40,16 @@ real_dataset = FolderDataset('path/to/folder', extension='png')
 fake_dataset = FolderDataset('path/to/folder', extension='png')
 
 score = HWDScore()
-preprocessed_real_dataset = score.digest(real_dataset)
+processed_real_dataset = score.digest(real_dataset)
 
 # save on disk
-preprocessed_real_dataset.save('preprocessed.pkl')
-del preprocessed_real_dataset
+processed_real_dataset.save('processed.pkl')
+del processed_real_dataset
 
 # load from disk
-preprocessed_real_dataset = ProcessedDataset.load('preprocessed.pkl')
-preprocessed_fake_dataset = score.digest(fake_dataset)
+processed_real_dataset = ProcessedDataset.load('processed.pkl')
+processed_fake_dataset = score.digest(fake_dataset)
 
-result = score.distance(preprocessed_real_dataset, preprocessed_fake_dataset)
+result = score.distance(processed_real_dataset, processed_fake_dataset)
 print('HWD:', result)
 ```
