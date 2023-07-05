@@ -18,4 +18,4 @@ from .base_score import BaseScore, ProcessedDataset
 # from .fid_whole_euc_score import FIDWholeEucScore
 # from .fved_imagenet_score import FVeDImageNetScore
 # from .vont_imagenet_score import VontImageNetScore
-# from .separability_score import SilhouetteScore, CalinskiHarabaszScore, DaviesBouldinScore, GrayZoneScore, EqualErrorRateScore, VITScore
+from .separability_score import SilhouetteScore, CalinskiHarabaszScore, DaviesBouldinScore, GrayZoneScore, EqualErrorRateScore, VITScore

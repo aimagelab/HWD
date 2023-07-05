@@ -76,90 +76,13 @@ def get_dataset(dataset_name, path, **kwargs):
     return dataset
 
 
-def get_score(score_name, dataset, device='cuda'):
+def get_score(score_name, dataset, device='cuda'): 
     kwargs = {'device': device}
     dataset.transform = fid_our_transforms
     if score_name == 'fid':
         score = FIDScore(**kwargs)
-        return score
-    elif score_name == 'fid_inf':
-        score = FIDInfScore(**kwargs)
-        return score
-    elif score_name == 'fid_whole':
-        score = FIDWholeScore(**kwargs)
-        dataset.transform = fid_whole_transforms
-        return score
-    elif score_name == 'fid_whole_euc':
-        score = FIDWholeEucScore(**kwargs)
-        dataset.transform = fid_whole_transforms
-        return score
-    elif score_name == 'kid':
-        score = KIDScore(**kwargs)
-        return score
-    elif score_name == 'fid_euc':
-        score = FIDEucScore(**kwargs)
-        return score
-
-    layers = score_name.split('_')[-1]
-    if layers.isdigit():
-        kwargs['layers'] = int(layers)
-    dataset.transform = fred_transforms
-
-    if score_name.startswith('fred_mean'):
-        score = FReDScore(**kwargs)
-    elif score_name.startswith('fred_tpp'):
-        score = FReDScore(reduction='tpp', **kwargs)
-    elif score_name.startswith('fred'):
-        score = FReDScore(reduction=None, **kwargs)
-    elif score_name.startswith('kred_mean'):
-        score = KReDScore(**kwargs)
-    elif score_name.startswith('kred'):
-        score = KReDScore(reduction=None, **kwargs)
-    elif score_name.startswith('kved_mean'):
-        score = KVeDScore(**kwargs)
-        dataset.transform = hwd_transforms
-    elif score_name.startswith('kved'):
-        score = KVeDScore(reduction=None, **kwargs)
-        dataset.transform = hwd_transforms
-    elif score_name.startswith('tred_mean'):
-        score = TReDScore(**kwargs)
-    elif score_name.startswith('tved_mean'):
-        score = TVeDScore(**kwargs)
-        dataset.transform = hwd_transforms
-    elif score_name.startswith('fved_mean'):
-        score = FVeDScore(**kwargs)
-        dataset.transform = hwd_transforms
-    elif score_name.startswith('fved'):
-        score = FVeDScore(reduction=None, **kwargs)
-        dataset.transform = hwd_transforms
-    elif score_name.startswith('fved_imagenet_beginning'):
-        score = FVeDImageNetScore(reduction=None, **kwargs)
-        dataset.transform = fved_beginning_transforms
-    elif score_name.startswith('fved_imagenet'):
-        score = FVeDImageNetScore(reduction=None, **kwargs)
-        dataset.transform = hwd_transforms
-    elif score_name.startswith('fved_beginning'):
-        score = FVeDScore(reduction=None, **kwargs)
-        dataset.transform = fved_beginning_transforms
-    elif score_name.startswith('font_mean'):
-        score = FontScore(**kwargs)
-    elif score_name.startswith('font'):
-        score = FontScore(reduction=None, **kwargs)
-    elif score_name.startswith('vont_beginning'):
-        score = VontScore(reduction=None, **kwargs)
-        dataset.transform = fved_beginning_transforms
-    elif score_name.startswith('vont_imagenet_beginning'):
-        score = VontImageNetScore(reduction=None, **kwargs)
-        dataset.transform = fved_beginning_transforms
-    elif score_name.startswith('vont_imagenet'):
-        score = VontImageNetScore(reduction=None, **kwargs)
-        dataset.transform = hwd_transforms
-    elif score_name.startswith('vont_mean'):
-        score = VontScore(**kwargs)
-        dataset.transform = hwd_transforms
-    elif score_name.startswith('vont'):
-        score = VontScore(reduction=None, **kwargs)
-        dataset.transform = hwd_transforms
+    elif score_name == 'hwd':
+        score = HWDScore(**kwargs)
     else:
         raise ValueError(f'Unknown score {score_name}')
     assert isinstance(score, BaseScore)
