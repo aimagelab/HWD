@@ -1,9 +1,8 @@
-from .base_score import BaseScore
 import numpy as np
 from sklearn.metrics import silhouette_score, calinski_harabasz_score, davies_bouldin_score
 
 
-class SilhouetteScore(BaseScore):
+class SilhouetteScore():
     def distance(self, good, bad, metric='euclidean', **kwargs):
         good = np.array(good)
         bad = np.array(bad)
@@ -12,7 +11,7 @@ class SilhouetteScore(BaseScore):
         return silhouette_score(data, clusters, metric=metric, **kwargs)
 
 
-class CalinskiHarabaszScore(BaseScore):
+class CalinskiHarabaszScore():
     def distance(self, good, bad, **kwargs):
         good = np.array(good)
         bad = np.array(bad)
@@ -21,7 +20,7 @@ class CalinskiHarabaszScore(BaseScore):
         return calinski_harabasz_score(data, clusters, **kwargs)
 
 
-class DaviesBouldinScore(BaseScore):
+class DaviesBouldinScore():
     def distance(self, good, bad, **kwargs):
         good = np.array(good)
         bad = np.array(bad)
@@ -30,7 +29,7 @@ class DaviesBouldinScore(BaseScore):
         return davies_bouldin_score(data, clusters, **kwargs)
 
 
-class GrayZoneScore(BaseScore):
+class GrayZoneScore():
     def __init__(self, bins=40, **kwargs):
         super().__init__(**kwargs)
         self.bins = bins
@@ -47,7 +46,7 @@ class GrayZoneScore(BaseScore):
         return overlap / (len(good) + len(bad)) * 100.0
 
 
-class EqualErrorRateScore(BaseScore):
+class EqualErrorRateScore():
     def distance(self, good, bad, **kwargs):
         good = np.array(good)
         bad = np.array(bad)
@@ -62,7 +61,7 @@ class EqualErrorRateScore(BaseScore):
         return miss / (len(good) + len(bad)) / 2 * 100.0
 
 
-class VITScore(BaseScore):
+class VITScore():
     def distance(self, good, bad, **kwargs):
         good = np.array(good)
         bad = np.array(bad)
