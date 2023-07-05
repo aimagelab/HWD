@@ -1,7 +1,7 @@
 import argparse
 import signal
 import csv
-from make_graph import get_dataset, get_score
+from make_distribution_graph import get_dataset, get_score
 
 
 class TimeoutException(Exception):

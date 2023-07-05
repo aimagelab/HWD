@@ -4,7 +4,7 @@ import pickle
 import numpy as np
 from pathlib import Path
 from matplotlib import pyplot as plt
-from make_graph import get_dataset, get_score, set_seed, secure_compute_distance
+from make_distribution_graph import get_dataset, get_score, set_seed, secure_compute_distance
 from metrics import ProcessedDataset
 
 
