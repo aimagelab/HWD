@@ -104,7 +104,6 @@ if __name__ == '__main__':
     parser.add_argument('--results_path', type=str, default='results', help='Path to the results folder')
     parser.add_argument('--dataset', type=str, required=True)
     parser.add_argument('--score', type=str, required=True)
-    parser.add_argument('--verbose', action='store_true', default=False)
     parser.add_argument('--compute', type=str, default='lazy', choices=['force', 'lazy', 'none'])
     parser.add_argument('--act', type=str, default='lazy', choices=['force', 'lazy'])
     parser.add_argument('--batch_size', type=int, default=None)
@@ -130,7 +129,7 @@ if __name__ == '__main__':
         author_sizes = [sum(label == author for label in dataset.labels) for author in author_ids]
         author_ids = {author for author, size in zip(author_ids, author_sizes) if size > args.author_min}
 
-        kwargs = {'dataset': dataset, 'verbose': args.verbose}
+        kwargs = {'dataset': dataset, 'verbose': True}
         if args.batch_size is not None:
             kwargs['batch_size'] = args.batch_size
 
@@ -144,7 +143,7 @@ if __name__ == '__main__':
         good_samples = []
         for i, author_id in enumerate(author_ids, 1):
             tmp_db1, tmp_db2 = processed_dataset[author_id].split(0.5)
-            res = secure_compute_distance(tmp_db1, tmp_db2, score, args.verbose, args.batch_size, args.device)
+            res = secure_compute_distance(tmp_db1, tmp_db2, score, True, args.batch_size, args.device)
             if res is not None:
                 good_samples.append(res)
             print(f'\rComputing GOOD {i}/{len(author_ids)} ', end='', flush=True)
@@ -156,7 +155,7 @@ if __name__ == '__main__':
             other_authors = list(author_ids)[i % len(author_ids)]
             tmp_db1 = processed_dataset[author_id]
             tmp_db2 = processed_dataset[other_authors]
-            res = secure_compute_distance(tmp_db1, tmp_db2, score, args.verbose, args.batch_size, args.device)
+            res = secure_compute_distance(tmp_db1, tmp_db2, score, True, args.batch_size, args.device)
             if res is not None:
                 bad_samples.append(res)
             print(f'\rComputing BAD {i}/{len(author_ids)} ', end='', flush=True)
