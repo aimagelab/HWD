@@ -7,8 +7,10 @@ import numpy as np
 from pathlib import Path
 from metrics import *
 from datasets import *
+from metrics.distances import *
+from metrics.backbones import *
 from torch.cuda import OutOfMemoryError
-from datasets.transforms import fid_our_transforms, fred_transforms, hwd_transforms, fved_beginning_transforms, fid_whole_transforms
+from datasets.transforms import *
 import matplotlib.pyplot as plt
 
 
@@ -42,6 +44,8 @@ def get_dataset(dataset_name, path, **kwargs):
         dataset = CVLDataset(path, **kwargs)
     elif dataset_name == 'iam':
         dataset = IAMDataset(path, **kwargs)
+    elif dataset_name == 'iam_lines':
+        dataset = IAMDataset(path, dataset_type='lines', **kwargs)
     elif dataset_name == 'leopardi':
         dataset = LeopardiDataset(path, **kwargs)
     elif dataset_name == 'norhand':
@@ -83,6 +87,86 @@ def get_score(score_name, dataset, device='cuda'):
         score = FIDScore(**kwargs)
     elif score_name == 'hwd':
         score = HWDScore(**kwargs)
+    elif score_name == 'hwd_hamming':
+        score = HWDScore(**kwargs)
+        score.distance = HammingDistance(threshold=0.005)
+    elif score_name == 'hwd_mahalanobis':
+        score = HWDScore(**kwargs)
+        score.distance = MahalanobisDistance()
+    elif score_name == 'hwd_cosine':
+        score = HWDScore(**kwargs)
+        score.distance = CosineDistance()
+    elif score_name == 'fid_rand':
+        score = FIDScore(**kwargs)
+        score.backbone = InceptionV3Backbone(url=None)  
+        score.backbone.to(device)
+    elif score_name == 'iv3_frechet':
+        backbone = InceptionV3Backbone(url='https://github.com/aimagelab/font_square/releases/download/Inception-v3/IV3_class_10400.pth')
+        distance = FrechetDistance()
+        transforms = Compose([
+                ResizeHeight(32),
+                ToTensor(),
+                ToInceptionV3Input(size=299),
+            ])
+        score = BaseScore(backbone, distance, transforms, **kwargs)
+    elif score_name == 'iv3_euclidean':
+        backbone = InceptionV3Backbone(url='https://github.com/aimagelab/font_square/releases/download/Inception-v3/IV3_class_10400.pth')
+        distance = EuclideanDistance()
+        transforms = Compose([
+                ResizeHeight(32),
+                ToTensor(),
+                ToInceptionV3Input(size=299),
+            ])
+        score = BaseScore(backbone, distance, transforms, **kwargs)
+    elif score_name == 'custom_vgg_rand_begin_euc':
+        backbone = InceptionV3Backbone(url='https://github.com/aimagelab/font_square/releases/download/Inception-v3/IV3_class_10400.pth')
+        distance = EuclideanDistance()
+        transforms = Compose([
+                ResizeHeight(32),
+                ToTensor(),
+                ToInceptionV3Input(size=299),
+            ])
+        score = BaseScore(backbone, distance, transforms, **kwargs)
+    elif score_name == 'iv3_cosine':
+        backbone = InceptionV3Backbone(url='https://github.com/aimagelab/font_square/releases/download/Inception-v3/IV3_class_10400.pth')
+        distance = CosineDistance()
+        transforms = Compose([
+                ResizeHeight(32),
+                ToTensor(),
+                ToInceptionV3Input(size=299),
+            ])
+        score = BaseScore(backbone, distance, transforms, **kwargs)
+    elif score_name.startswith('custom_'):
+        _, backbone_name, pretraining, transforms_name, distance_name = score_name.split('_')
+
+        if backbone_name == 'vgg':
+            rand_url = 'https://github.com/aimagelab/font_square/releases/download/VGG-16/VGG16_class_10400_random.pth'
+            font2_url = 'https://github.com/aimagelab/font_square/releases/download/VGG-16/VGG16_class_10400.pth'
+            backbone = VGG16Backbone(url=rand_url) if pretraining == 'rand' else VGG16Backbone(url=font2_url)
+        elif backbone_name == 'iv3':
+            rand_url = 'https://github.com/aimagelab/font_square/releases/download/Inception-v3/IV3_class_10400_random.pth'
+            backbone = InceptionV3Backbone(url=rand_url) if pretraining == 'rand' else InceptionV3Backbone()
+        
+        if distance_name == 'euc':
+            distance = EuclideanDistance()
+        elif distance_name == 'fre':
+            distance = FrechetDistance()
+        elif distance_name == 'cos':
+            distance = CosineDistance()
+        
+        if transforms_name == 'begin':
+            transforms = Compose([
+                ResizeHeight(32),
+                CropStartSquare(),
+                ToTensor(),
+            ])
+        elif transforms_name == 'whole':
+            transforms = Compose([
+                ResizeHeight(32),
+                ToTensor(),
+            ])
+
+        score = BaseScore(backbone, distance, transforms, **kwargs)
     else:
         raise ValueError(f'Unknown score {score_name}')
     assert isinstance(score, BaseScore)
@@ -95,6 +179,7 @@ def set_seed(seed):
     torch.cuda.manual_seed_all(seed)
     np.random.seed(seed)
     torch.backends.cudnn.deterministic = True
+    # torch.use_deterministic_algorithms(True)
 
 
 if __name__ == '__main__':
@@ -121,13 +206,13 @@ if __name__ == '__main__':
     csv_path = args.results_path / args.csv_path
 
     if args.compute == 'force' or (args.compute == 'lazy' and not json_path.exists()):
+        set_seed(args.seed)
         dataset = get_dataset(args.dataset, args.path)
         score = get_score(args.score, dataset, args.device)
-        set_seed(args.seed)
 
         author_ids = dataset.author_ids
         author_sizes = [sum(label == author for label in dataset.labels) for author in author_ids]
-        author_ids = {author for author, size in zip(author_ids, author_sizes) if size > args.author_min}
+        author_ids = sorted({author for author, size in zip(author_ids, author_sizes) if size > args.author_min})
 
         kwargs = {'dataset': dataset, 'verbose': True}
         if args.batch_size is not None:
@@ -150,9 +235,9 @@ if __name__ == '__main__':
         print('OK')
 
         bad_samples = []
-        for i, author_id in enumerate(author_ids, 1):
+        for i, author_id in enumerate((author_ids), 1):
             # other_authors = author_ids - {author_id}
-            other_authors = list(author_ids)[i % len(author_ids)]
+            other_authors = author_ids[i % len(author_ids)]
             tmp_db1 = processed_dataset[author_id]
             tmp_db2 = processed_dataset[other_authors]
             res = secure_compute_distance(tmp_db1, tmp_db2, score, True, args.batch_size, args.device)

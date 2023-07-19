@@ -22,8 +22,9 @@ class VGG16Backbone(BaseBackbone):
     def load_model(self):
         model = models.vgg16(num_classes=10400)
 
-        checkpoint = torch.hub.load_state_dict_from_url(self.url, progress=True, map_location=self.device)
-        model.load_state_dict(checkpoint)
+        if self.url is not None:
+            checkpoint = torch.hub.load_state_dict_from_url(self.url, progress=True, map_location=self.device)
+            model.load_state_dict(checkpoint)
 
         modules = list(model.features.children())
         modules.append(torch.nn.AdaptiveAvgPool2d((1, 1)))
@@ -62,6 +63,11 @@ class VGG16Backbone(BaseBackbone):
         imgs = torch.stack([torch.nn.functional.pad(x[0], (0, max_width - x[0].size(2))) for x in batch], dim=0)
         ids = [x[1] for x in batch]
         return imgs, ids, torch.Tensor(imgs_width)
+    
+    def to(self, device):
+        self.device = device
+        self.model = self.model.to(device)
+        return self
     
     def __call__(self, dataset, verbose=False):
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=False, collate_fn=self.collate_fn)
@@ -106,3 +112,9 @@ class InceptionV3Backbone(BaseBackbone):
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=False)
         ids, labels, features = self.get_activations(loader, verbose)
         return ProcessedDataset(ids, labels, features)
+    
+    def to(self, device):
+        self.device = device
+        self.model = self.model.to(device)
+        return self
+    

@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 
 
 class IAMDataset(BaseDataset):
-    def __init__(self, path, transform=None, nameset=None):
+    def __init__(self, path, transform=None, nameset=None, dataset_type='words'):
         """
         Args:
             path (string): Path folder of the dataset.
@@ -18,7 +18,7 @@ class IAMDataset(BaseDataset):
         """
         super().__init__(path, transform, nameset)
 
-        self.imgs = list(Path(path, 'words').rglob('*.png'))
+        self.imgs = list(Path(path, dataset_type).rglob('*.png'))
         xml_files = list(Path(path, 'xmls').rglob('*.xml'))
         author_dict = {xml_file.stem: ET.parse(xml_file).getroot().attrib['writer-id'] for xml_file in xml_files}
 

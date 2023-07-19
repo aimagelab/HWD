@@ -1,4 +1,5 @@
 from metrics import HWDScore, FIDScore
+from metrics.distances import MahalanobisDistance, HammingDistance, FrechetDistance, CosineDistance
 from datasets import FolderDataset
 from torchvision import transforms
 import numpy as np

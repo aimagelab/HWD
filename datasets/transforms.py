@@ -1,8 +1,19 @@
+from typing import Any
 from PIL import Image
 import numpy as np
 import torch
+import math
 from torchvision.transforms import Compose, ToTensor, ColorJitter
 
+
+class CropWhite:
+    def __call__(self, img) -> Any:
+        img_width, img_height = img.size
+        tmp = np.array(img.convert('L')).mean(0)
+        img_width = img_width - (tmp >= 250)[::-1].argmin()
+        img_width = min(img_width, img_height)
+        img = img.crop((0, 0, img_width, img_height))
+        return img
 
 class ResizeHeight:
     def __init__(self, height, interpolation=Image.NEAREST):
@@ -65,6 +76,16 @@ class ToNumpy:
 class Flatten:
     def __call__(self, img):
         return img.reshape(-1)
+    
+
+class ToInceptionV3Input:
+    def __init__(self, size=299):
+        self.size = size
+
+    def __call__(self, x):
+        h_rep = math.ceil(self.size / x.shape[1])
+        w_rep = math.ceil(self.size / x.shape[2])
+        return x.repeat(1, h_rep, w_rep)[:, :self.size, :self.size]
 
 
 fid_ganwriting_transforms = Compose([

@@ -177,8 +177,9 @@ def fid_inception_v3(url):
     inception.dropout = nn.Identity()
     inception.fc = nn.Identity()
     
-    state_dict = torch.hub.load_state_dict_from_url(url, progress=True)
-    inception.load_state_dict(state_dict, strict=False)
+    if url is not None:
+        state_dict = torch.hub.load_state_dict_from_url(url, progress=True)
+        inception.load_state_dict(state_dict, strict=False)
     return inception
 
 

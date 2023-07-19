@@ -6,3 +6,12 @@ data.json
 same_author.png
 custom_iv3.py
 results
+check_avail.py
+my_chat_id.py
+*.pkl
+*.pth
+*.csv
+images/
+.vscode/
+find_the_perfect_author.py
+make_samples_html.py

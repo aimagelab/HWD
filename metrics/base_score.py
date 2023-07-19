@@ -79,6 +79,14 @@ class ProcessedDataset:
     def cuda(self):
         return self.to('cuda')
     
+    def __add__(self, other):
+        assert isinstance(other, ProcessedDataset)
+        assert self.device == other.device
+        ids = torch.cat((self.ids, other.ids))
+        labels = self.labels + other.labels
+        features = torch.cat((self.features, other.features))
+        return ProcessedDataset(ids, labels, features)
+    
 
 class BaseBackbone:
     def __init__(self, device='cpu'):
@@ -108,10 +116,12 @@ class BaseDistance:
 
 
 class BaseScore:
-    def __init__(self, backbone, distance, transforms):
+    def __init__(self, backbone, distance, transforms, device='cpu'):
         self.backbone = backbone
         self.distance = distance
         self.transforms = transforms
+        self.device = torch.device(device)
+        self.to(self.device)
 
     def __call__(self, dataset1, dataset2, **kwargs) -> float:
         data1 = self.digest(dataset1, **kwargs)
@@ -123,8 +133,8 @@ class BaseScore:
         return self.backbone(dataset, **kwargs)
     
     def to(self, device):
-        device = torch.device(device)
-        self.backbone.to(device)
+        self.device = torch.device(device)
+        self.backbone.to(self.device)
         return self
     
     def cpu(self):
