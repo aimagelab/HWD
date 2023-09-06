@@ -16,7 +16,7 @@ pip3 list
 # Example
 Basic code to compute the score
 ```python
-from metrics import HWDScore, FIDScore
+from metrics import HWDScore, FIDScore, KIDScore
 from datasets import FolderDataset
 
 real_dataset = FolderDataset('path/to/folder', extension='png')
@@ -29,6 +29,10 @@ print('HWD:', result)
 score = FIDScore()
 result = score(real_dataset, fake_dataset)
 print('FID:', result)
+
+score = KIDScore()
+result = score(real_dataset, fake_dataset)
+print('KID:', result)
 ```
 
 To store intermediate results is it possible to use the `ProcessedDataset`:
