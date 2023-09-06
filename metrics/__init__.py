@@ -1,7 +1,7 @@
 # from .fid_score import FIDScore as old_FIDScore
 # from .fid_infinity_score import FIDInfScore
 # from .hwd_score import HWDScore
-from .scores import HWDScore, FIDScore
+from .scores import HWDScore, FIDScore, KIDScore
 from .base_score import BaseScore, ProcessedDataset
 # from .fid_euc_score import FIDEucScore
 # from .inception_score import InceptionScore

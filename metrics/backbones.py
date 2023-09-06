@@ -1,9 +1,11 @@
 import torch
 from torchvision import models
+from torchmetrics.image.fid import NoTrainInceptionV3
 from .fid.inception import InceptionV3
 from torch.utils.data import DataLoader
 from torch.nn.functional import adaptive_avg_pool2d
 from .base_score import BaseScore, ProcessedDataset, BaseBackbone
+
 
 class AdjustDims(torch.nn.Module):
     def forward(self, x):
@@ -11,6 +13,7 @@ class AdjustDims(torch.nn.Module):
         if H == 1 and W == 1:
             return x.reshape(B, C)
         return x.reshape(B, C, -1)
+
 
 class VGG16Backbone(BaseBackbone):
     def __init__(self, url, batch_size=1, device='cpu'):
@@ -74,6 +77,7 @@ class VGG16Backbone(BaseBackbone):
         ids, labels, features = self.get_activations(loader, verbose)
         return ProcessedDataset(ids, labels, features)
 
+
 class InceptionV3Backbone(BaseBackbone):
     def __init__(self, url, batch_size=128, device='cpu'):
         super().__init__(device)
@@ -117,4 +121,5 @@ class InceptionV3Backbone(BaseBackbone):
         self.device = device
         self.model = self.model.to(device)
         return self
+
     
