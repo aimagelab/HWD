@@ -1,4 +1,17 @@
-# Installation
+# HWD: A Novel Evaluation Score for Styled Handwritten Text Generation
+
+This repository contains the reference code and dataset for the paper [HWD: A Novel Evaluation Score for Styled Handwritten Text Generation](https://arxiv.org/abs/).
+If you find it useful, please cite it as:
+```
+@inproceedings{pippi2023handwritten,
+  title={{HWD: A Novel Evaluation Score for Styled Handwritten Text Generation}},
+  author={Pippi, Vittorio and Quattrini, Fabio and and Cascianelli, Silvia and Cucchiara, Rita},
+  booktitle={Proceedings of the British Machine Vision Conference},
+  year={2023}
+}
+```
+
+## Installation
 This is the list of python packages that we need to compute the score on windows with Python 3.9.13
 ```console
 pip3 install torch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu117
@@ -13,7 +26,7 @@ pip3 list
 
 ```
 
-# Example
+## Example
 Basic code to compute the score
 ```python
 from metrics import HWDScore, FIDScore, KIDScore
