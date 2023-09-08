@@ -4,7 +4,7 @@
 This repository contains the reference code and dataset for the paper [HWD: A Novel Evaluation Score for Styled Handwritten Text Generation](https://arxiv.org/abs/).
 If you find it useful, please cite it as:
 ```
-@inproceedings{pippi2023handwritten,
+@inproceedings{pippi2023hwd,
   title={{HWD: A Novel Evaluation Score for Styled Handwritten Text Generation}},
   author={Pippi, Vittorio and Quattrini, Fabio and and Cascianelli, Silvia and Cucchiara, Rita},
   booktitle={Proceedings of the British Machine Vision Conference},
