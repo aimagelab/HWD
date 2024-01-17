@@ -36,15 +36,15 @@ from datasets import FolderDataset
 real_dataset = FolderDataset('path/to/folder', extension='png')
 fake_dataset = FolderDataset('path/to/folder', extension='png')
 
-score = HWDScore()
+score = HWDScore().cuda()
 result = score(real_dataset, fake_dataset)
 print('HWD:', result)
 
-score = FIDScore()
+score = FIDScore().cuda()
 result = score(real_dataset, fake_dataset)
 print('FID:', result)
 
-score = KIDScore()
+score = KIDScore().cuda()
 result = score(real_dataset, fake_dataset)
 print('KID:', result)
 ```
