@@ -16,17 +16,17 @@ class AdjustDims(torch.nn.Module):
 
 
 class VGG16Backbone(BaseBackbone):
-    def __init__(self, url, batch_size=1, device='cpu'):
-        super().__init__(device)
+    def __init__(self, url, batch_size=1):
+        super().__init__()
         self.url = url
         self.batch_size = batch_size
-        self.model = self.load_model().to(self.device)
+        self.model = self.load_model()
     
     def load_model(self):
         model = models.vgg16(num_classes=10400)
 
         if self.url is not None:
-            checkpoint = torch.hub.load_state_dict_from_url(self.url, progress=True, map_location=self.device)
+            checkpoint = torch.hub.load_state_dict_from_url(self.url, progress=True, map_location='cpu')
             model.load_state_dict(checkpoint)
 
         modules = list(model.features.children())
@@ -40,7 +40,7 @@ class VGG16Backbone(BaseBackbone):
 
         features, labels, ids = [], [], []
         for i, (images, authors, _) in enumerate(loader):
-            images = images.to(self.device)
+            images = images.to(next(self.model.parameters()).device)
 
             pred = self.model(images)
             pred = pred.squeeze(-2)
@@ -67,11 +67,6 @@ class VGG16Backbone(BaseBackbone):
         ids = [x[1] for x in batch]
         return imgs, ids, torch.Tensor(imgs_width)
     
-    def to(self, device):
-        self.device = device
-        self.model = self.model.to(device)
-        return self
-    
     def __call__(self, dataset, verbose=False):
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=False, collate_fn=self.collate_fn)
         ids, labels, features = self.get_activations(loader, verbose)
@@ -79,11 +74,11 @@ class VGG16Backbone(BaseBackbone):
 
 
 class InceptionV3Backbone(BaseBackbone):
-    def __init__(self, url, batch_size=128, device='cpu'):
-        super().__init__(device)
+    def __init__(self, url, batch_size=128):
+        super().__init__()
         self.url = url
         self.batch_size = batch_size
-        self.model = InceptionV3(url=self.url).to(self.device)
+        self.model = InceptionV3(url=self.url)
     
     @torch.inference_mode()
     def get_activations(self, loader, verbose=False):
@@ -92,7 +87,7 @@ class InceptionV3Backbone(BaseBackbone):
         features = []
         labels = []
         for i, (images, authors) in enumerate(loader):
-            images = images.to(self.device)
+            images = images.to(next(self.model.parameters()).device)
 
             pred = self.model(images)[0]
 
@@ -116,10 +111,5 @@ class InceptionV3Backbone(BaseBackbone):
         loader = DataLoader(dataset, batch_size=self.batch_size, shuffle=False)
         ids, labels, features = self.get_activations(loader, verbose)
         return ProcessedDataset(ids, labels, features)
-    
-    def to(self, device):
-        self.device = device
-        self.model = self.model.to(device)
-        return self
 
     

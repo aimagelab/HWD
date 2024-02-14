@@ -1,6 +1,7 @@
 from __future__ import annotations
 import pickle
 import torch
+import torch.nn as nn
 
 
 class ProcessedDataset:
@@ -88,10 +89,7 @@ class ProcessedDataset:
         return ProcessedDataset(ids, labels, features)
     
 
-class BaseBackbone:
-    def __init__(self, device='cpu'):
-        self.device = device
-
+class BaseBackbone(nn.Module):
     @torch.no_grad()
     def __call__(self, dataset) -> ProcessedDataset:
         """
@@ -102,9 +100,6 @@ class BaseBackbone:
         raise NotImplementedError
 
 class BaseDistance:
-    def __init__(self):
-        pass
-
     def __call__(self, data1, data2) -> float:
         """
         Compute the distance between two datasets
@@ -115,8 +110,9 @@ class BaseDistance:
         raise NotImplementedError
 
 
-class BaseScore:
+class BaseScore(nn.Module):
     def __init__(self, backbone, distance, transforms, device='cpu'):
+        super().__init__()
         self.backbone = backbone
         self.distance = distance
         self.transforms = transforms
@@ -131,14 +127,3 @@ class BaseScore:
     def digest(self, dataset, **kwargs) -> ProcessedDataset:
         dataset.transform = self.transforms
         return self.backbone(dataset, **kwargs)
-    
-    def to(self, device):
-        self.device = torch.device(device)
-        self.backbone.to(self.device)
-        return self
-    
-    def cpu(self):
-        return self.to('cpu')
-    
-    def cuda(self):
-        return self.to('cuda')
