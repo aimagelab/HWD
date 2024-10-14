@@ -1,7 +1,7 @@
 # HWD: A Novel Evaluation Score for Styled Handwritten Text Generation
 
 
-This repository contains the reference code and dataset for the paper [HWD: A Novel Evaluation Score for Styled Handwritten Text Generation](https://arxiv.org/abs/).
+This repository contains the reference code and dataset for the paper [HWD: A Novel Evaluation Score for Styled Handwritten Text Generation](https://papers.bmvc2023.org/0007.pdf).
 If you find it useful, please cite it as:
 ```
 @inproceedings{pippi2023hwd,
