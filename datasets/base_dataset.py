@@ -1,7 +1,7 @@
 from torch.utils.data import Dataset
 from PIL import Image
 import numpy as np
-import copy
+from pathlib import Path
 
 class BaseDataset(Dataset):
     def __init__(self, path, transform=None, nameset=None, preprocess=None):
@@ -35,8 +35,8 @@ class BaseDataset(Dataset):
             tuple: (image, label) where label is index of the target class.
         """
         img = self.imgs[index]
+        img = Image.open(img).convert('RGB') if isinstance(img, Path) else img 
         label = self.labels[index]
-        img = Image.open(img).convert('RGB')
         if self.preprocess is not None:
             img = self.preprocess(img)
         if self.transform is not None:
