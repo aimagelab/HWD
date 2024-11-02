@@ -15,3 +15,12 @@ images/
 .vscode/
 find_the_perfect_author.py
 make_samples_html.py
+compute_hwd.py
+compute_metric.py
+compute_score.py
+debug_datasets.py
+example.py
+dist
+hwd.egg-info
+tests
+build
