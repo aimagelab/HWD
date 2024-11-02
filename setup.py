@@ -26,5 +26,6 @@ setup(
         'transformers',
         'tiktoken',
         'protobuf',
+        'msgpack',
     ],
 )
