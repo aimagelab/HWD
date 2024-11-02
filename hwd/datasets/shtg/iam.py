@@ -62,9 +62,26 @@ def extract_words_from_xml(xml_string):
     return words_info
 
 
-class IAMLines(BaseSHTGDataset):
-    def __init__(self, load_style_samples=True, num_style_samples=1):
-        super().__init__(load_style_samples=load_style_samples, num_style_samples=num_style_samples)
+class IAMBase(BaseSHTGDataset):
+    def __init__(self, load_style_samples=True, num_style_samples=1, scenario=None):
+        super().__init__(load_style_samples=load_style_samples, num_style_samples=num_style_samples, scenario=scenario)
+
+        if not IAM_XML_DIR_PATH.exists():
+            download_file(IAM_XML_URL, IAM_XML_TGZ_PATH)
+            extract_tgz(IAM_XML_TGZ_PATH, IAM_XML_DIR_PATH, delete=True)
+
+        self.lines = []
+        for xml_file in IAM_XML_DIR_PATH.rglob('*.xml'):
+            self.lines.extend(extract_lines_from_xml(xml_file.read_text()))
+
+        self.words = []
+        for xml_file in IAM_XML_DIR_PATH.rglob('*.xml'):
+            self.words.extend(extract_words_from_xml(xml_file.read_text()))
+
+
+class IAMLines(IAMBase):
+    def __init__(self, load_style_samples=True, num_style_samples=1, scenario=None):
+        super().__init__(load_style_samples=load_style_samples, num_style_samples=num_style_samples, scenario=scenario)
 
         download_file(SHTG_IAM_LINES_URL, SHTG_IAM_LINES_PATH, exist_ok=True)
 
@@ -72,33 +89,25 @@ class IAMLines(BaseSHTGDataset):
             download_file(IAM_LINES_URL, IAM_LINES_TGZ_PATH)
             extract_tgz(IAM_LINES_TGZ_PATH, IAM_LINES_DIR_PATH, delete=True)
 
-        if not IAM_XML_DIR_PATH.exists():
-            download_file(IAM_XML_URL, IAM_XML_TGZ_PATH)
-            extract_tgz(IAM_XML_TGZ_PATH, IAM_XML_DIR_PATH, delete=True)
-
         with gzip.open(SHTG_IAM_LINES_PATH, 'rt', encoding='utf-8') as file:
             self.data = json.load(file)
 
         self.imgs = {img_path.stem: img_path for img_path in IAM_LINES_DIR_PATH.rglob('*.png')}
-
-        lines = []
-        for xml_file in IAM_XML_DIR_PATH.rglob('*.xml'):
-            lines.extend(extract_lines_from_xml(xml_file.read_text()))
-        self.lines = {line['id']: line for line in lines}
+        self.labels = {line['id']: line['text'] for line in self.lines}
 
         # Switching from words ids to lines ids
         for sample in self.data:
             filtered_style_ids = []
             for style_sample in sample['style_ids']:
-                if self.lines[style_sample[:-3]]['text'] != sample['word']:
+                if self.labels[style_sample[:-3]] != sample['word']:
                     filtered_style_ids.append(style_sample[:-3])
             sample['style_ids'] = list(set(filtered_style_ids))
             assert len(sample['style_ids']) > 0
 
 
-class IAMWords(BaseSHTGDataset):
-    def __init__(self, load_style_samples=True, num_style_samples=1):
-        super().__init__(load_style_samples=load_style_samples, num_style_samples=num_style_samples)
+class IAMWords(IAMBase):
+    def __init__(self, load_style_samples=True, num_style_samples=1, scenario=None):
+        super().__init__(load_style_samples=load_style_samples, num_style_samples=num_style_samples, scenario=scenario)
 
         download_file(SHTG_IAM_WORDS_URL, SHTG_IAM_WORDS_PATH, exist_ok=True)
 
@@ -110,4 +119,23 @@ class IAMWords(BaseSHTGDataset):
             self.data = json.load(file)
 
         self.imgs = {img_path.stem: img_path for img_path in IAM_WORDS_DIR_PATH.rglob('*.png')}
+        self.labels = {word['id']: word['text'] for word in self.words}
+
+
+class IAMLinesFromWords(IAMBase):
+    def __init__(self, load_style_samples=True, num_style_samples=1, scenario=None):
+        super().__init__(load_style_samples=load_style_samples, num_style_samples=num_style_samples, scenario=scenario)
+
+        download_file(SHTG_IAM_LINES_URL, SHTG_IAM_LINES_PATH, exist_ok=True)
+
+        if not IAM_WORDS_DIR_PATH.exists():
+            download_file(IAM_WORDS_URL, IAM_WORDS_TGZ_PATH)
+            extract_tgz(IAM_WORDS_TGZ_PATH, IAM_WORDS_DIR_PATH, delete=True)
+
+        with gzip.open(SHTG_IAM_LINES_PATH, 'rt', encoding='utf-8') as file:
+            self.data = json.load(file)
+
+        self.imgs = {img_path.stem: img_path for img_path in IAM_WORDS_DIR_PATH.rglob('*.png')}
+        self.labels = {word['id']: word['text'] for word in self.words}
+
 

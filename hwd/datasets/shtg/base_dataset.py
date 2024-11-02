@@ -5,6 +5,7 @@ from pathlib import Path
 from PIL import Image
 import functools
 import shutil
+import zipfile
 
 def download_file(url, filename, exist_ok=False):
     path = Path(filename).expanduser().resolve()
@@ -36,22 +37,40 @@ def extract_tgz(file_path, extract_path='.', delete=False):
     if delete:
         file_path.unlink()
 
+def extract_zip(file_path, extract_path='.', delete=False):
+    # Extract .zip file to the specified directory
+    print(f'Extracting {file_path.name} ... ', end='', flush=True)
+    with zipfile.ZipFile(file_path, 'r') as zip_ref:
+        zip_ref.extractall(path=extract_path)
+    print('OK')
+    if delete:
+        file_path.unlink()
+
 class BaseSHTGDataset():
-    def __init__(self, load_style_samples, num_style_samples):
+    def __init__(self, load_style_samples, num_style_samples, scenario=None):
         self.load_style_samples = load_style_samples
         self.num_style_samples = num_style_samples
+        self.scenario = scenario
+
+    @property
+    def _data(self):
+        if self.scenario is None:
+            return self.data
+        else:
+            return [s for s in self.data if s['dst'].startswith(self.scenario)]
             
     def __len__(self):
-        return len(self.data)
+        return len(self._data)
 
     def __getitem__(self, idx):
-        sample = self.data[idx]
+        sample = self._data[idx]
         output = {}
         output['gen_text'] = sample['word']
         output['author'] = Path(sample['dst']).parent.name
         output['dst_path'] = sample['dst']
-        output['style_ids'] = sample['style_ids'][:self.num_style_samples]
+        output['style_ids'] = [sample['style_ids'][i % len(sample['style_ids'])] for i in range(self.num_style_samples)]
         output['style_imgs_path'] = [self.imgs[id] for id in output['style_ids']]
+        output['style_imgs_text'] = [self.labels[id] for id in output['style_ids']]
         if self.load_style_samples:
             output['style_imgs'] = [Image.open(self.imgs[id]) for id in output['style_ids']]
         return output
