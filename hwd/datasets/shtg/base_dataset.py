@@ -6,6 +6,8 @@ from PIL import Image
 import functools
 import shutil
 import zipfile
+import gzip
+import json
 
 def download_file(url, filename, exist_ok=False):
     path = Path(filename).expanduser().resolve()
@@ -58,6 +60,12 @@ class BaseSHTGDataset():
             return self.data
         else:
             return [s for s in self.data if s['dst'].startswith(self.scenario)]
+
+    def save_data_compressed(self, path):
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with gzip.open(path, 'wt', encoding='utf-8') as f:
+            json.dump(self.data, f)
             
     def __len__(self):
         return len(self._data)
