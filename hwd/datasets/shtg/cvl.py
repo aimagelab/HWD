@@ -57,7 +57,7 @@ class CVL(BaseSHTGDataset):
 
         if not CVL_DIR_PATH.exists():
             download_file(CVL_URL, CVL_ZIP_PATH)
-            extract_zip(CVL_ZIP_PATH, CVL_DIR_PATH, delete=True)
+            extract_zip(CVL_ZIP_PATH, CVL_DIR_PATH.parent, delete=True)
 
         self.imgs = {'-'.join(img_path.stem.split('-')[:4]): img_path for img_path in CVL_DIR_PATH.rglob('*.tif')}
 
