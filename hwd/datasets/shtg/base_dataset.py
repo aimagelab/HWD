@@ -1,3 +1,4 @@
+import unicodedata
 import requests
 import tarfile
 from tqdm import tqdm
@@ -8,6 +9,7 @@ import shutil
 import zipfile
 import gzip
 import json
+import re
 
 def download_file(url, filename, exist_ok=False):
     path = Path(filename).expanduser().resolve()
@@ -48,11 +50,26 @@ def extract_zip(file_path, extract_path='.', delete=False):
     if delete:
         file_path.unlink()
 
+def simplify_text(text, charset):
+    simplified_text = []
+    for char in text:
+        norm_char = unicodedata.normalize('NFD', char)
+        if char in charset:
+            simplified_text.append(char)
+        else:
+            for nchar in norm_char:
+                if nchar in charset:
+                    simplified_text.append(nchar)
+    simplified_text = ''.join(simplified_text)
+    
+    return simplified_text
+
 class BaseSHTGDataset():
     def __init__(self, load_style_samples, num_style_samples, scenario=None):
         self.load_style_samples = load_style_samples
         self.num_style_samples = num_style_samples
         self.scenario = scenario
+        self.simplify_text = False
 
     @property
     def _data(self):
@@ -66,6 +83,11 @@ class BaseSHTGDataset():
         path.parent.mkdir(parents=True, exist_ok=True)
         with gzip.open(path, 'wt', encoding='utf-8') as f:
             json.dump(self.data, f)
+
+    def set_charset(self, charset):
+        self.simplify_text = True
+        self.charset = set(charset)
+        return self
             
     def __len__(self):
         return len(self._data)
@@ -73,7 +95,10 @@ class BaseSHTGDataset():
     def __getitem__(self, idx):
         sample = self._data[idx]
         output = {}
-        output['gen_text'] = sample['word']
+        if self.simplify_text:
+            output['gen_text'] = simplify_text(sample['word'], self.charset)
+        else:
+            output['gen_text'] = sample['word']
         output['author'] = Path(sample['dst']).parent.name
         output['dst_path'] = sample['dst']
         output['style_ids'] = [sample['style_ids'][i % len(sample['style_ids'])] for i in range(self.num_style_samples)]
