@@ -38,8 +38,7 @@ class BaseDataset(Dataset):
                 self.labels = [labels[str(img_path.relative_to(self.path))] for img_path in self.imgs]
                 self.has_labels = True
             except KeyError:
-                warnings.warn('Found the transcriptions.json with a wrong format. \
-                              Please check the docs to know how to format the file')
+                warnings.warn('Found the transcriptions.json with a wrong format. Please check the docs to know how to format the file')
 
     def __getitem__(self, index):
         img_path = self.imgs[index]
