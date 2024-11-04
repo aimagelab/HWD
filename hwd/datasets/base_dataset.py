@@ -29,12 +29,14 @@ class BaseDataset(Dataset):
         self.is_sorted = False
 
         self.labels = [None] * len(self.imgs)
+        self.has_labels = False
 
         transcriptions_path = self.path / 'transcriptions.json'
         if transcriptions_path.exists():
             try:
                 labels = json.loads(transcriptions_path.read_text())
                 self.labels = [labels[str(img_path.relative_to(self.path))] for img_path in self.imgs]
+                self.has_labels = True
             except KeyError:
                 warnings.warn('Found the transcriptions.json with a wrong format.',
                               'Please check the docs to know how to format the file')
