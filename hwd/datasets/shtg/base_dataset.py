@@ -67,8 +67,9 @@ def simplify_text(text, charset):
     return simplified_text
 
 class BaseSHTGDataset():
-    def __init__(self, load_style_samples, num_style_samples):
+    def __init__(self, load_style_samples, load_gen_sample, num_style_samples):
         self.load_style_samples = load_style_samples
+        self.load_gen_sample = load_gen_sample
         self.num_style_samples = num_style_samples
         self.simplify_text = False
 
@@ -95,6 +96,14 @@ class BaseSHTGDataset():
         with open(path / 'transcriptions.json', 'w') as f:
             json.dump(transcriptions, f)
 
+    def check_compliance(self, path):
+        path = Path(path)
+        for sample in self.data:
+            dst = path / sample['dst']
+            if not dst.exists():
+                return False
+        return True
+
     def set_charset(self, charset):
         self.simplify_text = True
         self.charset = set(charset)
@@ -118,4 +127,6 @@ class BaseSHTGDataset():
         output['style_imgs_text'] = [self.labels[id] for id in output['style_ids']]
         if self.load_style_samples:
             output['style_imgs'] = [Image.open(self.imgs[id]) for id in output['style_ids']]
+        if self.load_gen_sample:
+            output['gen_img'] = Image.open(self.imgs[sample['gen_id']])
         return output

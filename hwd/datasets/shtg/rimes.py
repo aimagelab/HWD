@@ -15,8 +15,8 @@ RIMES_DIR_PATH = Path('.cache/rimes')
 
 
 class RimesLines(BaseSHTGDataset):
-    def __init__(self, load_style_samples=True, num_style_samples=1):
-        super().__init__(load_style_samples=load_style_samples, num_style_samples=num_style_samples)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
         if not RIMES_DIR_PATH.exists():
             download_file(RIMES_URL, RIMES_ZIP_PATH)

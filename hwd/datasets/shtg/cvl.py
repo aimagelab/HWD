@@ -52,8 +52,8 @@ def extract_words_from_xml(xml_string):
 
 
 class CVL(BaseSHTGDataset):
-    def __init__(self, extract_fn, shtg_url, shtg_path, load_style_samples=True, num_style_samples=1):
-        super().__init__(load_style_samples=load_style_samples, num_style_samples=num_style_samples)
+    def __init__(self, extract_fn, shtg_url, shtg_path, **kwargs):
+        super().__init__(**kwargs)
 
         if not CVL_DIR_PATH.exists():
             download_file(CVL_URL, CVL_ZIP_PATH)
@@ -99,17 +99,15 @@ class CVL(BaseSHTGDataset):
 
 
 class CVLWords(CVL):
-    def __init__(self, load_style_samples=True, num_style_samples=1):
-        super().__init__(extract_words_from_xml, SHTG_CVL_WORDS_URL, SHTG_CVL_WORDS_PATH, 
-                         load_style_samples, num_style_samples)
+    def __init__(self, **kwargs):
+        super().__init__(extract_words_from_xml, SHTG_CVL_WORDS_URL, SHTG_CVL_WORDS_PATH, **kwargs)
 
 
 class CVLLines(CVL):
-    def __init__(self, load_style_samples=True, num_style_samples=1):
-        super().__init__(extract_lines_from_xml, SHTG_CVL_LINES_URL, SHTG_CVL_LINES_PATH, 
-                         load_style_samples, num_style_samples)
+    def __init__(self, **kwargs):
+        super().__init__(extract_lines_from_xml, SHTG_CVL_LINES_URL, SHTG_CVL_LINES_PATH, **kwargs)
 
 
 class CVLLinesFromWords(CVL):
-    def __init__(self, load_style_samples=True, num_style_samples=1):
+    def __init__(self, **kwargs):
         raise NotImplementedError

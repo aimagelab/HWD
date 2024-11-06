@@ -65,8 +65,8 @@ def extract_words_from_xml(xml_string):
 
 
 class IAMBase(BaseSHTGDataset):
-    def __init__(self, load_style_samples=True, num_style_samples=1):
-        super().__init__(load_style_samples=load_style_samples, num_style_samples=num_style_samples)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
         if not IAM_XML_DIR_PATH.exists():
             download_file(IAM_XML_URL, IAM_XML_TGZ_PATH)
@@ -116,8 +116,8 @@ class IAMBase(BaseSHTGDataset):
 
 
 class IAMLines(IAMBase):
-    def __init__(self, load_style_samples=True, num_style_samples=1):
-        super().__init__(load_style_samples=load_style_samples, num_style_samples=num_style_samples)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
         download_file(SHTG_IAM_LINES_URL, SHTG_IAM_LINES_PATH, exist_ok=True)
 
@@ -132,20 +132,10 @@ class IAMLines(IAMBase):
         with gzip.open(SHTG_IAM_LINES_PATH, 'rt', encoding='utf-8') as file:
             self.data = json.load(file)
 
-        # Switching from words ids to lines ids
-        # for sample in self.data:
-        #     filtered_style_ids = []
-        #     for style_sample in sample['style_ids']:
-        #         if self.labels[style_sample[:-3]] != sample['word']:
-        #             filtered_style_ids.append(style_sample[:-3])
-        #     sample['style_ids'] = list(set(filtered_style_ids))
-        #     assert len(sample['style_ids']) > 0
-
-
 
 class IAMWords(IAMBase):
-    def __init__(self, load_style_samples=True, num_style_samples=1):
-        super().__init__(load_style_samples=load_style_samples, num_style_samples=num_style_samples)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
         download_file(SHTG_IAM_WORDS_URL, SHTG_IAM_WORDS_PATH, exist_ok=True)
 
@@ -162,8 +152,8 @@ class IAMWords(IAMBase):
 
 
 class IAMLinesFromWords(IAMBase):
-    def __init__(self, load_style_samples=True, num_style_samples=1, scenario=None):
-        super().__init__(load_style_samples=load_style_samples, num_style_samples=num_style_samples, scenario=scenario)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
         download_file(SHTG_IAM_LINES_URL, SHTG_IAM_LINES_PATH, exist_ok=True)
 
