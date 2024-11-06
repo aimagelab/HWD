@@ -5,6 +5,7 @@ from torchmetrics.utilities.data import dim_zero_cat
 from .base_score import BaseDistance, ProcessedDataset
 from .fid.fid_score_crop64x64 import calculate_frechet_distance
 from itertools import groupby, combinations
+from collections import defaultdict
 
 
 class EuclideanDistance(BaseDistance):
@@ -14,27 +15,39 @@ class EuclideanDistance(BaseDistance):
     def from_streams(self, data1_stream, data2_stream):
         tmp_1 = self._single_stream(data1_stream)
         tmp_2 = self._single_stream(data2_stream)
-        return torch.cdist(tmp_1, tmp_2).item()
+        results = []
+        for author in tmp_1.keys():
+            results.append(torch.cdist(tmp_1[author], tmp_2[author]).item())
+        return sum(results) / len(results)
 
     def _single_stream(self, data_stream):
-        data_sum = None
-        data_count = 0
+        data_sum = {}
+        data_count = defaultdict(int)
         for data in data_stream:
-            tmp_sum = data.features.sum(dim=0).unsqueeze(0)
-            tmp_count = data.features.size(0)
-            if data_sum is None:
-                data_sum = tmp_sum
-            else:
-                data_sum += tmp_sum
-            data_count += tmp_count
-        return data_sum / data_count
+            authors = list(set(data.authors))
+            for author in authors:
+                tmp_data = data[author]
+                tmp_sum = tmp_data.features.sum(dim=0).unsqueeze(0)
+                tmp_count = data.features.size(0)
+                if author not in data_sum:
+                    data_sum[author] = tmp_sum
+                else:
+                    data_sum[author] += tmp_sum
+                data_count[author] += tmp_count
+        for author in data_sum.keys():
+            data_sum[author] /= data_count[author]
+        return data_sum
 
     def __call__(self, data1, data2, **kwargs):
         assert isinstance(data1, ProcessedDataset)
         assert isinstance(data2, ProcessedDataset)
-        tmp_1 = data1.features.mean(dim=0).unsqueeze(0)
-        tmp_2 = data2.features.mean(dim=0).unsqueeze(0)
-        return torch.cdist(tmp_1, tmp_2).item()
+        authors = list(set(data1.authors))
+        results = []
+        for author in authors:
+            tmp_1 = data1[author].features.mean(dim=0).unsqueeze(0)
+            tmp_2 = data2[author].features.mean(dim=0).unsqueeze(0)
+            results.append(torch.cdist(tmp_1, tmp_2).item())
+        return sum(results) / len(results)
     
 
 class FrechetDistance(BaseDistance):
