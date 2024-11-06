@@ -67,7 +67,7 @@ class VGG16Backbone(BaseBackbone):
         return torch.nn.Sequential(*modules)
     
     @torch.inference_mode()
-    def get_activations(self, loader, verbose=False):
+    def get_activations(self, loader, verbose=False, stream=False):
         self.model.eval()
         device = next(self.model.parameters()).device
         features, authors_list, ids = [], [], []
@@ -89,9 +89,21 @@ class VGG16Backbone(BaseBackbone):
             authors_list.extend(a for a, n in zip(authors, imgs_features.tolist()) for _ in range(n))
             features.append(preds.cpu())
 
+            if stream:
+                ids = torch.Tensor(ids).long()
+                features = torch.cat(features, dim=0)
+                yield ids, authors_list, features
+                features, authors_list, ids = [], [], []
+        if stream:
+            return
         ids = torch.Tensor(ids).long()
         features = torch.cat(features, dim=0)
-        return ids, authors_list, features
+        yield ids, authors_list, features
+    
+    def stream(self, dataset, verbose=False):
+        loader = DataLoader(dataset, batch_size=self.batch_size, num_workers=1, shuffle=False, collate_fn=self.collate_fn)
+        for ids, authors, features in self.get_activations(loader, verbose, stream=True):
+            yield ProcessedDataset(ids, authors, features)
     
     def collate_fn(self, batch):
         imgs, authors, _ = zip(*batch)
@@ -102,16 +114,16 @@ class VGG16Backbone(BaseBackbone):
     
     def __call__(self, dataset, verbose=False):
         loader = DataLoader(dataset, batch_size=self.batch_size, num_workers=1, shuffle=False, collate_fn=self.collate_fn)
-        ids, authors, features = self.get_activations(loader, verbose)
+        ids, authors, features = next(self.get_activations(loader, verbose))
         return ProcessedDataset(ids, authors, features)
     
 
 class ActivationsVGG16Backbone(VGG16Backbone):
     @torch.inference_mode()
-    def get_activations(self, loader, verbose=False):
+    def get_activations(self, loader, verbose=False, stream=False):
+        assert stream, 'The activations can only be computed with stream==True'
         self.model.eval()
         device = next(self.model.parameters()).device
-        features, authors_list, ids = [], [], []
         loader_bar = tqdm(enumerate(loader), desc='Computing activations', disable=not verbose, total=len(loader))
         for i, (images, authors, imgs_width) in loader_bar:
             images = images.to(device)
@@ -121,16 +133,11 @@ class ActivationsVGG16Backbone(VGG16Backbone):
                 style_features = activations.activations
             
             layers_keys = ['0', '5', '10', '19', '28']
-            preds = [style_features[k][0].cpu() for k in layers_keys]
+            preds = [style_features[k][0] for k in layers_keys]
             preds_T = list(zip(*[p.split(1) for p in preds]))
-
-            ids.extend(i * loader.batch_size + d for d in range(len(authors)))
-            authors_list.extend(authors)
-            features.extend(preds_T)
-
-        ids = torch.Tensor(ids).long()
-        # features = torch.cat(features, dim=0)
-        return ids, authors_list, features
+            
+            ids = torch.Tensor([i * loader.batch_size + d for d in range(len(authors))]).long()
+            yield ids, authors, preds_T
 
 
 class InceptionV3Backbone(BaseBackbone):
@@ -141,7 +148,7 @@ class InceptionV3Backbone(BaseBackbone):
         self.model = InceptionV3(url=self.url)
     
     @torch.inference_mode()
-    def get_activations(self, loader, verbose=False):
+    def get_activations(self, loader, verbose=False, stream=False):
         self.model.eval()
         device = next(self.model.parameters()).device
         features = []
@@ -156,18 +163,32 @@ class InceptionV3Backbone(BaseBackbone):
             features.append(pred.squeeze(-1, -2).cpu())
             authors_list.extend(authors)
 
+            if stream:
+                features = torch.cat(features, dim=0)
+                ids = torch.arange(len(authors_list))
+                yield ids, authors_list, features
+                features, authors_list, ids = [], [], []
+
+        if stream:
+            return
+
         features = torch.cat(features, dim=0)
         ids = torch.arange(len(authors_list))
-        return ids, authors_list, features
+        yield ids, authors_list, features
     
     def collate_fn(self, batch):
         imgs, authors, labels = zip(*batch)
         imgs = torch.stack(imgs)
         return imgs, authors, labels
     
+    def stream(self, dataset, verbose=False):
+        loader = DataLoader(dataset, batch_size=self.batch_size, num_workers=1, shuffle=False, collate_fn=self.collate_fn)
+        for ids, authors, features in self.get_activations(loader, verbose, stream=True):
+            yield ProcessedDataset(ids, authors, features)
+    
     def __call__(self, dataset, verbose=False):
         loader = DataLoader(dataset, batch_size=self.batch_size, num_workers=1, shuffle=False, collate_fn=self.collate_fn)
-        ids, authors, features = self.get_activations(loader, verbose)
+        ids, authors, features = next(self.get_activations(loader, verbose))
         return ProcessedDataset(ids, authors, features)
 
 

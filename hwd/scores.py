@@ -131,14 +131,16 @@ class LPIPSScore(BaseScore):
         dataset2.imgs = imgs_2
         return dataset1, dataset2
     
-    def __call__(self, dataset1, dataset2, **kwargs) -> float:
+    def __call__(self, dataset1, dataset2, stream=True, **kwargs) -> float:
+        if not stream:
+            Warning.warn('The LPIPS score uses a lot of memory, please use the stream=True argument')
         dataset1, dataset2 = self._sync_dataset(dataset1, dataset2)
-        return super().__call__(dataset1, dataset2, **kwargs)
+        return super().__call__(dataset1, dataset2, stream=stream, **kwargs)
     
 
 class IntraLPIPSScore(BaseScore):
-    def __init__(self, height=32):
-        backbone = ActivationsVGG16Backbone(VGG16_10400_URL, num_classes=10400, batch_size=16)
+    def __init__(self, height=32, batch_size=32):
+        backbone = ActivationsVGG16Backbone(VGG16_10400_URL, num_classes=10400, batch_size=batch_size)
         distance = IntraLPIPSDistance()
         transforms = Compose([
             PaddingSquareHeight(),
@@ -147,7 +149,11 @@ class IntraLPIPSScore(BaseScore):
         ])
         super().__init__(backbone, distance, transforms)
     
-    def __call__(self, dataset, **kwargs) -> float:
+    def __call__(self, dataset, stream=True, **kwargs) -> float:
         assert hasattr(dataset, 'imgs_ids'), f'To use the {self.__class__.__name__} you have to provide and Unfolded datasets "dataset.unfold()"'
-        data = self.digest(dataset, **kwargs)
-        return self.distance(data, dataset.imgs_ids)
+        if stream:
+            data_stream = self.digest_stream(dataset, **kwargs)
+            return self.distance.from_streams(data_stream, dataset.imgs_ids)
+        else:
+            data = self.digest(dataset, **kwargs)
+            return self.distance(data, dataset.imgs_ids)

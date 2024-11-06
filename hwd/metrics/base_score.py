@@ -123,12 +123,27 @@ class BaseScore(nn.Module):
             warnings.warn(f'Compute the score with the cpu is slow. Please consider using a gpu.')
         self.device = device
         self.to(self.device)
+    
+    def from_streams(self, data1_stream, data2_stream):
+        raise NotImplementedError
 
-    def __call__(self, dataset1, dataset2, **kwargs) -> float:
-        data1 = self.digest(dataset1, **kwargs)
-        data2 = self.digest(dataset2, **kwargs)
-        return self.distance(data1, data2)
+    def with_stream(self, dataset1, dataset2, **kwargs) -> float:
+        data1_stream = self.digest_stream(dataset1, **kwargs)
+        data2_stream = self.digest_stream(dataset2, **kwargs)
+        return self.distance.from_streams(data1_stream, data2_stream)
+
+    def __call__(self, dataset1, dataset2, stream=False, **kwargs) -> float:
+        if stream:
+            return self.with_stream(dataset1, dataset2, **kwargs)
+        else:
+            data1 = self.digest(dataset1, **kwargs)
+            data2 = self.digest(dataset2, **kwargs)
+            return self.distance(data1, data2)
 
     def digest(self, dataset, **kwargs) -> ProcessedDataset:
         dataset.transform = self.transforms
         return self.backbone(dataset, **kwargs)
+
+    def digest_stream(self, dataset, **kwargs) -> ProcessedDataset:
+        dataset.transform = self.transforms
+        return self.backbone.stream(dataset, **kwargs)

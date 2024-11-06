@@ -84,6 +84,31 @@ class BaseSHTGDataset():
         with gzip.open(path, 'wt', encoding='utf-8') as f:
             json.dump(self.data, f)
 
+    def _fill_data(self):
+        from collections import defaultdict
+        labels_mapping = defaultdict(list)
+        for key, value in self.labels.items():
+            labels_mapping[value].append(key)
+        
+        for sample in self._data:
+            ids = labels_mapping[sample['word']]
+            if len(ids) == 1:
+                sample['gen_id'] = ids[0]
+            elif len(ids) > 1:
+                if sum([i in sample['dst'] for i in ids]) == 1:
+                    for i in ids:
+                        if i in sample['dst']:
+                            sample['gen_id'] = i
+                            break
+                elif sum([Path(sample['dst']).parent.name in i for i in ids]) == 1:
+                    print()
+            else:
+                raise ValueError
+
+    def save_reference(self, path):
+        for sample in self._data:
+            print()
+
     def set_charset(self, charset):
         self.simplify_text = True
         self.charset = set(charset)
