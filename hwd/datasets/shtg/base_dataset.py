@@ -1,3 +1,4 @@
+from torch.utils.data import Dataset
 import unicodedata
 import requests
 import tarfile
@@ -9,7 +10,6 @@ import shutil
 import zipfile
 import gzip
 import json
-import re
 
 def download_file(url, filename, exist_ok=False):
     path = Path(filename).expanduser().resolve()
@@ -66,8 +66,8 @@ def simplify_text(text, charset):
     
     return simplified_text
 
-class BaseSHTGDataset():
-    def __init__(self, load_style_samples, load_gen_sample, num_style_samples):
+class BaseSHTGDataset(Dataset):
+    def __init__(self, load_style_samples=True, load_gen_sample=False, num_style_samples=1):
         self.load_style_samples = load_style_samples
         self.load_gen_sample = load_gen_sample
         self.num_style_samples = num_style_samples
@@ -91,8 +91,11 @@ class BaseSHTGDataset():
     def save_transcriptions(self, path):
         path = Path(path)
         transcriptions = {}
-        for sample in self.data:
-            transcriptions[sample['dst']] = sample['text']
+        old_style_flag, old_gen_flag = self.load_style_samples, self.load_gen_sample
+        self.load_style_samples, self.load_gen_sample = False, False
+        for sample in self:
+            transcriptions[sample['dst_path']] = sample['gen_text']
+        self.load_style_samples, self.load_gen_sample = old_style_flag, old_gen_flag
         with open(path / 'transcriptions.json', 'w') as f:
             json.dump(transcriptions, f)
 
