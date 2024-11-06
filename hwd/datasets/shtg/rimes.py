@@ -14,9 +14,9 @@ RIMES_ZIP_PATH = Path('.cache/rimes/RIMES-2011-Lines.zip')
 RIMES_DIR_PATH = Path('.cache/rimes')
 
 
-class Rimes(BaseSHTGDataset):
-    def __init__(self, load_style_samples=True, num_style_samples=1, scenario=None):
-        super().__init__(load_style_samples=load_style_samples, num_style_samples=num_style_samples, scenario=scenario)
+class RimesLines(BaseSHTGDataset):
+    def __init__(self, load_style_samples=True, num_style_samples=1):
+        super().__init__(load_style_samples=load_style_samples, num_style_samples=num_style_samples)
 
         if not RIMES_DIR_PATH.exists():
             download_file(RIMES_URL, RIMES_ZIP_PATH)
@@ -26,6 +26,7 @@ class Rimes(BaseSHTGDataset):
         labels_path = RIMES_DIR_PATH / 'RIMES-2011-Lines' / 'Transcriptions'
         self.labels = {lbl_path.stem: lbl_path.read_text() for lbl_path in labels_path.rglob('*.txt')}
 
+        self.shtg_path = SHTG_RIMES_LINES_PATH
         download_file(SHTG_RIMES_LINES_URL, SHTG_RIMES_LINES_PATH, exist_ok=True)
         with gzip.open(SHTG_RIMES_LINES_PATH, 'rt', encoding='utf-8') as file:
             self.data = json.load(file)
@@ -43,8 +44,9 @@ class Rimes(BaseSHTGDataset):
                  if author == author_2 and sample_id != sample_id_2:
                      style_ids.append(sample_id_2)
             data.append({
-                'word': self.labels[sample_id],
-                'dst': f'test/{author}/{sample_id}.png',
+                'text': self.labels[sample_id],
+                'gen_id': sample_id,
+                'dst': f'{author}/{sample_id}.png',
                 'style_ids': style_ids,
             })
         return data

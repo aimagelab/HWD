@@ -23,7 +23,9 @@ def download_file(url, filename, exist_ok=False):
         raise RuntimeError(f"Request to {url} returned status code {r.status_code}")
     file_size = int(r.headers.get('Content-Length', 0))
 
-    desc = "(Unknown total file size)" if file_size == 0 else ""
+    desc = f'Downloading {path.name}'
+    if file_size == 0:
+        desc += ' (Unknown total file size)'
     r.raw.read = functools.partial(r.raw.read, decode_content=True)  # Decompress if needed
     with tqdm.wrapattr(r.raw, "read", total=file_size, desc=desc) as r_raw:
         with path.open("wb") as f:
@@ -65,49 +67,33 @@ def simplify_text(text, charset):
     return simplified_text
 
 class BaseSHTGDataset():
-    def __init__(self, load_style_samples, num_style_samples, scenario=None):
+    def __init__(self, load_style_samples, num_style_samples):
         self.load_style_samples = load_style_samples
         self.num_style_samples = num_style_samples
-        self.scenario = scenario
         self.simplify_text = False
 
-    @property
-    def _data(self):
-        if self.scenario is None:
-            return self.data
-        else:
-            return [s for s in self.data if s['dst'].startswith(self.scenario)]
-
-    def save_data_compressed(self, path):
-        path = Path(path)
+    def save_data_compressed(self, path=None):
+        path = Path(path) if path is not None else self.shtg_path
         path.parent.mkdir(parents=True, exist_ok=True)
         with gzip.open(path, 'wt', encoding='utf-8') as f:
             json.dump(self.data, f)
 
-    def _fill_data(self):
-        from collections import defaultdict
-        labels_mapping = defaultdict(list)
-        for key, value in self.labels.items():
-            labels_mapping[value].append(key)
-        
-        for sample in self._data:
-            ids = labels_mapping[sample['word']]
-            if len(ids) == 1:
-                sample['gen_id'] = ids[0]
-            elif len(ids) > 1:
-                if sum([i in sample['dst'] for i in ids]) == 1:
-                    for i in ids:
-                        if i in sample['dst']:
-                            sample['gen_id'] = i
-                            break
-                elif sum([Path(sample['dst']).parent.name in i for i in ids]) == 1:
-                    print()
-            else:
-                raise ValueError
-
     def save_reference(self, path):
-        for sample in self._data:
-            print()
+        path = Path(path)
+        for sample in tqdm(self.data):
+            img = Image.open(self.imgs[sample['gen_id']])
+            dst = path / sample['dst']
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            img.save(dst)
+        self.save_transcriptions(path)
+
+    def save_transcriptions(self, path):
+        path = Path(path)
+        transcriptions = {}
+        for sample in self.data:
+            transcriptions[sample['dst']] = sample['text']
+        with open(path / 'transcriptions.json', 'w') as f:
+            json.dump(transcriptions, f)
 
     def set_charset(self, charset):
         self.simplify_text = True
@@ -115,17 +101,18 @@ class BaseSHTGDataset():
         return self
             
     def __len__(self):
-        return len(self._data)
+        return len(self.data)
 
     def __getitem__(self, idx):
-        sample = self._data[idx]
+        sample = self.data[idx]
         output = {}
         if self.simplify_text:
-            output['gen_text'] = simplify_text(sample['word'], self.charset)
+            output['gen_text'] = simplify_text(sample['text'], self.charset)
         else:
-            output['gen_text'] = sample['word']
+            output['gen_text'] = sample['text']
         output['author'] = Path(sample['dst']).parent.name
         output['dst_path'] = sample['dst']
+        output['gen_id'] = sample['gen_id']
         output['style_ids'] = [sample['style_ids'][i % len(sample['style_ids'])] for i in range(self.num_style_samples)]
         output['style_imgs_path'] = [self.imgs[id] for id in output['style_ids']]
         output['style_imgs_text'] = [self.labels[id] for id in output['style_ids']]

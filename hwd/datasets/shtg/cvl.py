@@ -52,8 +52,8 @@ def extract_words_from_xml(xml_string):
 
 
 class CVL(BaseSHTGDataset):
-    def __init__(self, extract_fn, shtg_url, shtg_path, load_style_samples=True, num_style_samples=1, scenario=None):
-        super().__init__(load_style_samples=load_style_samples, num_style_samples=num_style_samples, scenario=scenario)
+    def __init__(self, extract_fn, shtg_url, shtg_path, load_style_samples=True, num_style_samples=1):
+        super().__init__(load_style_samples=load_style_samples, num_style_samples=num_style_samples)
 
         if not CVL_DIR_PATH.exists():
             download_file(CVL_URL, CVL_ZIP_PATH)
@@ -67,6 +67,7 @@ class CVL(BaseSHTGDataset):
             self.samples.extend(extract_fn(xml_file.read_text(encoding="ISO-8859-1")))
 
         self.data = []
+        self.shtg_path = shtg_path
         download_file(shtg_url, shtg_path, exist_ok=True)
         with gzip.open(shtg_path, 'rt', encoding='utf-8') as file:
             self.data = json.load(file)
@@ -79,32 +80,36 @@ class CVL(BaseSHTGDataset):
         for sample_id, text in tqdm(self.labels.items()):
             writer_n = sample_id.split('-')[0]
 
+            if len(text) < 3:
+                continue
+
             style_ids = []
-            for sample_id_tgt in self.labels.keys():
+            for sample_id_tgt, text_tgt in self.labels.items():
                 writer_n_tgt = sample_id_tgt.split('-')[0]
-                if writer_n == writer_n_tgt and sample_id != sample_id_tgt:
+                if writer_n == writer_n_tgt and sample_id != sample_id_tgt and len(text_tgt) > 2:
                     style_ids.append(sample_id_tgt)
 
             data.append({
-                'word': text,
-                'dst': f'test/{writer_n}/{sample_id}.png',
+                'text': text,
+                'gen_id': sample_id,
+                'dst': f'{writer_n}/{sample_id}.png',
                 'style_ids': style_ids,
             })
         return data
 
 
 class CVLWords(CVL):
-    def __init__(self, load_style_samples=True, num_style_samples=1, scenario=None):
+    def __init__(self, load_style_samples=True, num_style_samples=1):
         super().__init__(extract_words_from_xml, SHTG_CVL_WORDS_URL, SHTG_CVL_WORDS_PATH, 
-                         load_style_samples, num_style_samples, scenario)
+                         load_style_samples, num_style_samples)
 
 
 class CVLLines(CVL):
-    def __init__(self, load_style_samples=True, num_style_samples=1, scenario=None):
+    def __init__(self, load_style_samples=True, num_style_samples=1):
         super().__init__(extract_lines_from_xml, SHTG_CVL_LINES_URL, SHTG_CVL_LINES_PATH, 
-                         load_style_samples, num_style_samples, scenario)
+                         load_style_samples, num_style_samples)
 
 
 class CVLLinesFromWords(CVL):
-    def __init__(self, load_style_samples=True, num_style_samples=1, scenario=None):
+    def __init__(self, load_style_samples=True, num_style_samples=1):
         raise NotImplementedError
