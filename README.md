@@ -13,10 +13,12 @@ If you find it useful, please cite it as:
 ```
 
 ## Installation
-This is the list of python packages that we need to compute the score on windows with Python 3.9.13
 ```console
 git clone https://github.com/aimagelab/HWD.git
 cd HWD
 python setup.py sdist bdist_wheel
 pip install .
 ```
+
+## Documentation
+Working in progress
