@@ -6,10 +6,12 @@ import gzip
 import xml.etree.ElementTree as ET
 from tqdm import tqdm
 import html
+from collections import defaultdict
 
 SHTG_IAM_LINES_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/shtg_iam_lines.json.gz'
-SHTG_IAM_WORDS_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/shtg_iam_words.json.gz'
 SHTG_IAM_LINES_PATH = Path('.cache/iam/shtg_iam_lines.json.gz')
+
+SHTG_IAM_WORDS_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/shtg_iam_words.json.gz'
 SHTG_IAM_WORDS_PATH = Path('.cache/iam/shtg_iam_words.json.gz')
 
 SHTG_AUTHORS_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/gan.iam.test.gt.filter27.txt'
@@ -161,11 +163,32 @@ class IAMLinesFromWords(IAMBase):
             download_file(IAM_WORDS_URL, IAM_WORDS_TGZ_PATH)
             extract_tgz(IAM_WORDS_TGZ_PATH, IAM_WORDS_DIR_PATH, delete=True)
 
+        if not IAM_LINES_DIR_PATH.exists():
+            download_file(IAM_LINES_URL, IAM_LINES_TGZ_PATH)
+            extract_tgz(IAM_LINES_TGZ_PATH, IAM_LINES_DIR_PATH, delete=True)
+
         self.shtg_path = SHTG_IAM_LINES_PATH
         with gzip.open(SHTG_IAM_LINES_PATH, 'rt', encoding='utf-8') as file:
             self.data = json.load(file)
 
-        self.imgs = {img_path.stem: img_path for img_path in IAM_WORDS_DIR_PATH.rglob('*.png')}
-        self.labels = {word['id']: word['text'] for word in self.words}
+        words_images = {img_path.stem: img_path for img_path in IAM_WORDS_DIR_PATH.rglob('*.png')}
+        lines_images = {img_path.stem: img_path for img_path in IAM_LINES_DIR_PATH.rglob('*.png')}
+        self.imgs = words_images | lines_images
+
+        words_lables = {word['id']: word['text'] for word in self.words}
+        lines_lables = {line['id']: line['text'] for line in self.lines}
+        self.labels = words_lables | lines_lables
+
+        lines_to_words = defaultdict(list)
+        for word_id in words_lables.keys():
+            a, b, c, _ = word_id.split('-')
+            lines_to_words[f'{a}-{b}-{c}'].append(word_id)
+
+        for sample in self.data:
+            style_ids = []
+            for word_id in sample['style_ids']:
+                style_ids.extend(lines_to_words[word_id])
+            sample['style_ids'] = style_ids
+
 
 
