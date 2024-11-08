@@ -164,11 +164,11 @@ class IAMWords(IAMBase):
         self.labels = {word['id']: word['text'] for word in self.words}
 
 
-class IAMLinesFromWords(IAMBase):
-    def __init__(self, **kwargs):
+class IAMLinesAndWords(IAMBase):
+    def __init__(self, shtg_url, shtg_path, **kwargs):
         super().__init__(**kwargs)
 
-        download_file(SHTG_IAM_LINES_URL, SHTG_IAM_LINES_PATH, exist_ok=True)
+        download_file(shtg_url, shtg_path, exist_ok=True)
 
         if not IAM_WORDS_DIR_PATH.exists():
             download_file(IAM_WORDS_URL, IAM_WORDS_TGZ_PATH)
@@ -178,20 +178,25 @@ class IAMLinesFromWords(IAMBase):
             download_file(IAM_LINES_URL, IAM_LINES_TGZ_PATH)
             extract_tgz(IAM_LINES_TGZ_PATH, IAM_LINES_DIR_PATH, delete=True)
 
-        self.shtg_path = SHTG_IAM_LINES_PATH
-        with gzip.open(SHTG_IAM_LINES_PATH, 'rt', encoding='utf-8') as file:
+        self.shtg_path = shtg_url
+        with gzip.open(shtg_path, 'rt', encoding='utf-8') as file:
             self.data = json.load(file)
 
-        words_images = {img_path.stem: img_path for img_path in IAM_WORDS_DIR_PATH.rglob('*.png')}
-        lines_images = {img_path.stem: img_path for img_path in IAM_LINES_DIR_PATH.rglob('*.png')}
-        self.imgs = words_images | lines_images
+        self.words_images = {img_path.stem: img_path for img_path in IAM_WORDS_DIR_PATH.rglob('*.png')}
+        self.lines_images = {img_path.stem: img_path for img_path in IAM_LINES_DIR_PATH.rglob('*.png')}
+        self.imgs = self.words_images | self.lines_images
 
-        words_lables = {word['id']: word['text'] for word in self.words}
-        lines_lables = {line['id']: line['text'] for line in self.lines}
-        self.labels = words_lables | lines_lables
+        self.words_lables = {word['id']: word['text'] for word in self.words}
+        self.lines_lables = {line['id']: line['text'] for line in self.lines}
+        self.labels = self.words_lables | self.lines_lables
+
+
+class IAMLinesFromWords(IAMLinesAndWords):
+    def __init__(self, **kwargs):
+        super().__init__(SHTG_IAM_LINES_URL, SHTG_IAM_LINES_PATH, **kwargs)
 
         lines_to_words = defaultdict(list)
-        for word_id in words_lables.keys():
+        for word_id in self.words_lables.keys():
             a, b, c, _ = word_id.split('-')
             lines_to_words[f'{a}-{b}-{c}'].append(word_id)
 
@@ -200,6 +205,22 @@ class IAMLinesFromWords(IAMBase):
             for word_id in sample['style_ids']:
                 style_ids.extend(lines_to_words[word_id])
             sample['style_ids'] = style_ids
+
+
+class IAMWordsFromLines(IAMLinesAndWords):
+    def __init__(self, **kwargs):
+        super().__init__(SHTG_IAM_WORDS_URL, SHTG_IAM_WORDS_PATH, **kwargs)
+
+        words_to_lines = defaultdict(list)
+        for word_id in self.words_lables.keys():
+            a, b, c, _ = word_id.split('-')
+            words_to_lines[word_id].append(f'{a}-{b}-{c}')
+
+        for sample in self.data:
+            style_ids = []
+            for word_id in sample['style_ids']:
+                style_ids.extend(words_to_lines[word_id])
+            sample['style_ids'] = list(set(style_ids))
 
 
 
