@@ -15,7 +15,7 @@ from .iam import IAM_FORMS_EH_URL, IAM_FORMS_EH_DIR_PATH, IAM_FORMS_EH_TGZ_PATH
 from .iam import IAM_FORMS_IZ_URL, IAM_FORMS_IZ_DIR_PATH, IAM_FORMS_IZ_TGZ_PATH
 from .base_dataset import download_file, extract_tgz
 
-OUTPUT_DIR = Path('.cache/iam_variable/')
+OUTPUT_DIR = Path('~/.cache/iam_variable/').expanduser()
 
 
 def random_color():

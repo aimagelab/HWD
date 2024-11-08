@@ -9,13 +9,13 @@ import html
 from collections import defaultdict
 
 SHTG_IAM_LINES_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/shtg_iam_lines.json.gz'
-SHTG_IAM_LINES_PATH = Path('.cache/iam/shtg_iam_lines.json.gz')
+SHTG_IAM_LINES_PATH = Path('~/.cache/iam/shtg_iam_lines.json.gz').expanduser()
 
 SHTG_IAM_WORDS_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/shtg_iam_words.json.gz'
-SHTG_IAM_WORDS_PATH = Path('.cache/iam/shtg_iam_words.json.gz')
+SHTG_IAM_WORDS_PATH = Path('~/.cache/iam/shtg_iam_words.json.gz').expanduser()
 
 SHTG_AUTHORS_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/gan.iam.test.gt.filter27.txt'
-SHTG_AUTHORS_PATH = Path('.cache/iam/gan.iam.test.gt.filter27.txt')
+SHTG_AUTHORS_PATH = Path('~/.cache/iam/gan.iam.test.gt.filter27.txt').expanduser()
 
 IAM_LINES_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/lines.tgz'
 IAM_WORDS_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/words.tgz'
@@ -25,21 +25,21 @@ IAM_FORMS_AD_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/forms
 IAM_FORMS_EH_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/formsE-H.tgz'
 IAM_FORMS_IZ_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/formsI-Z.tgz'
 
-IAM_LINES_TGZ_PATH = Path('.cache/iam/lines.tgz')
-IAM_WORDS_TGZ_PATH = Path('.cache/iam/words.tgz')
-IAM_XML_TGZ_PATH = Path('.cache/iam/xml.tgz')
-IAM_ASCII_TGZ_PATH = Path('.cache/iam/ascii.tgz')
-IAM_FORMS_AD_TGZ_PATH = Path('.cache/iam/formsA-D.tgz')
-IAM_FORMS_EH_TGZ_PATH = Path('.cache/iam/formsE-H.tgz')
-IAM_FORMS_IZ_TGZ_PATH = Path('.cache/iam/formsI-Z.tgz')
+IAM_LINES_TGZ_PATH = Path('~/.cache/iam/lines.tgz').expanduser()
+IAM_WORDS_TGZ_PATH = Path('~/.cache/iam/words.tgz').expanduser()
+IAM_XML_TGZ_PATH = Path('~/.cache/iam/xml.tgz').expanduser()
+IAM_ASCII_TGZ_PATH = Path('~/.cache/iam/ascii.tgz').expanduser()
+IAM_FORMS_AD_TGZ_PATH = Path('~/.cache/iam/formsA-D.tgz').expanduser()
+IAM_FORMS_EH_TGZ_PATH = Path('~/.cache/iam/formsE-H.tgz').expanduser()
+IAM_FORMS_IZ_TGZ_PATH = Path('~/.cache/iam/formsI-Z.tgz').expanduser()
 
-IAM_LINES_DIR_PATH = Path('.cache/iam/lines')
-IAM_WORDS_DIR_PATH = Path('.cache/iam/words')
-IAM_XML_DIR_PATH = Path('.cache/iam/xml')
-IAM_ASCII_DIR_PATH = Path('.cache/iam/ascii')
-IAM_FORMS_AD_DIR_PATH = Path('.cache/iam/formsA-D')
-IAM_FORMS_EH_DIR_PATH = Path('.cache/iam/formsE-H')
-IAM_FORMS_IZ_DIR_PATH = Path('.cache/iam/formsI-Z')
+IAM_LINES_DIR_PATH = Path('~/.cache/iam/lines').expanduser()
+IAM_WORDS_DIR_PATH = Path('~/.cache/iam/words').expanduser()
+IAM_XML_DIR_PATH = Path('~/.cache/iam/xml').expanduser()
+IAM_ASCII_DIR_PATH = Path('~/.cache/iam/ascii').expanduser()
+IAM_FORMS_AD_DIR_PATH = Path('~/.cache/iam/formsA-D').expanduser()
+IAM_FORMS_EH_DIR_PATH = Path('~/.cache/iam/formsE-H').expanduser()
+IAM_FORMS_IZ_DIR_PATH = Path('~/.cache/iam/formsI-Z').expanduser()
 
 def extract_lines_from_xml(xml_string):
     # Parse the XML string

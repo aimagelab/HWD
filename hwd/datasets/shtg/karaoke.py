@@ -10,8 +10,8 @@ SHTG_KARAOKE_HANDW_URL = {
     'words': 'https://github.com/aimagelab/HWD/releases/download/karaoke/shtg_karaoke_handw_words.json.gz'
 }
 SHTG_KARAOKE_HANDW_PATH = {
-    'lines': Path('.cache/karaoke/shtg_karaoke_handw_lines.json.gz'),
-    'words': Path('.cache/karaoke/shtg_karaoke_handw_words.json.gz')
+    'lines': Path('~/.cache/karaoke/shtg_karaoke_handw_lines.json.gz').expanduser(),
+    'words': Path('~/.cache/karaoke/shtg_karaoke_handw_words.json.gz').expanduser()
 }
 
 SHTG_KARAOKE_TYPEW_URL = {
@@ -19,17 +19,17 @@ SHTG_KARAOKE_TYPEW_URL = {
     'words': 'https://github.com/aimagelab/HWD/releases/download/karaoke/shtg_karaoke_typew_words.json.gz'
 }
 SHTG_KARAOKE_TYPEW_PATH = {
-    'lines': Path('.cache/karaoke/shtg_karaoke_typew_lines.json.gz'),
-    'words': Path('.cache/karaoke/shtg_karaoke_typew_words.json.gz')
+    'lines': Path('~/.cache/karaoke/shtg_karaoke_typew_lines.json.gz').expanduser(),
+    'words': Path('~/.cache/karaoke/shtg_karaoke_typew_words.json.gz').expanduser()
 }
 
 KARAOKE_HANDW_URL = 'https://github.com/aimagelab/HWD/releases/download/karaoke/handwritten_images.zip'
-KARAOKE_HANDW_ZIP_PATH = Path('.cache/karaoke/handwritten_images.zip')
-KARAOKE_HANDW_DIR_PATH = Path('.cache/karaoke/handwritten_images')
+KARAOKE_HANDW_ZIP_PATH = Path('~/.cache/karaoke/handwritten_images.zip').expanduser()
+KARAOKE_HANDW_DIR_PATH = Path('~/.cache/karaoke/handwritten_images').expanduser()
 
 KARAOKE_TYPEW_URL = 'https://github.com/aimagelab/HWD/releases/download/karaoke/typewritten_images.zip'
-KARAOKE_TYPEW_ZIP_PATH = Path('.cache/karaoke/typewritten_images.zip')
-KARAOKE_TYPEW_DIR_PATH = Path('.cache/karaoke/typewritten_images')
+KARAOKE_TYPEW_ZIP_PATH = Path('~/.cache/karaoke/typewritten_images.zip').expanduser()
+KARAOKE_TYPEW_DIR_PATH = Path('~/.cache/karaoke/typewritten_images').expanduser()
 
 
 class KaraokeBase(BaseSHTGDataset):

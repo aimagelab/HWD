@@ -9,12 +9,12 @@ import gzip
 
 SHTG_CVL_LINES_URL = 'https://github.com/aimagelab/HWD/releases/download/cvl/shtg_cvl_lines.json.gz'
 SHTG_CVL_WORDS_URL = 'https://github.com/aimagelab/HWD/releases/download/cvl/shtg_cvl_words.json.gz'
-SHTG_CVL_LINES_PATH = Path('.cache/cvl/shtg_cvl_lines.json.gz')
-SHTG_CVL_WORDS_PATH = Path('.cache/cvl/shtg_cvl_words.json.gz')
+SHTG_CVL_LINES_PATH = Path('~/.cache/cvl/shtg_cvl_lines.json.gz').expanduser()
+SHTG_CVL_WORDS_PATH = Path('~/.cache/cvl/shtg_cvl_words.json.gz').expanduser()
 
 CVL_URL = 'https://zenodo.org/records/1492267/files/cvl-database-1-1.zip?download=1'
-CVL_ZIP_PATH = Path('.cache/cvl/cvl-database-1-1.zip')
-CVL_DIR_PATH = Path('.cache/cvl/cvl-database-1-1')
+CVL_ZIP_PATH = Path('~/.cache/cvl/cvl-database-1-1.zip').expanduser()
+CVL_DIR_PATH = Path('~/.cache/cvl/cvl-database-1-1').expanduser()
 
 
 def extract_lines_from_xml(xml_string):
