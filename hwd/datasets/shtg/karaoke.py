@@ -6,8 +6,8 @@ import json
 import gzip
 
 SHTG_KARAOKE_HANDW_URL = {
-    'lines': 'https://github.com/aimagelab/HWD/releases/download/ts/shtg_karaoke_handw_lines.json.gz',
-    'words': 'https://github.com/aimagelab/HWD/releases/download/ts/shtg_karaoke_handw_words.json.gz'
+    'lines': 'https://github.com/aimagelab/HWD/releases/download/karaoke/shtg_karaoke_handw_lines.json.gz',
+    'words': 'https://github.com/aimagelab/HWD/releases/download/karaoke/shtg_karaoke_handw_words.json.gz'
 }
 SHTG_KARAOKE_HANDW_PATH = {
     'lines': Path('.cache/karaoke/shtg_karaoke_handw_lines.json.gz'),
@@ -15,19 +15,19 @@ SHTG_KARAOKE_HANDW_PATH = {
 }
 
 SHTG_KARAOKE_TYPEW_URL = {
-    'lines': 'https://github.com/aimagelab/HWD/releases/download/ts/shtg_karaoke_typew_lines.json.gz',
-    'words': 'https://github.com/aimagelab/HWD/releases/download/ts/shtg_karaoke_typew_words.json.gz'
+    'lines': 'https://github.com/aimagelab/HWD/releases/download/karaoke/shtg_karaoke_typew_lines.json.gz',
+    'words': 'https://github.com/aimagelab/HWD/releases/download/karaoke/shtg_karaoke_typew_words.json.gz'
 }
 SHTG_KARAOKE_TYPEW_PATH = {
     'lines': Path('.cache/karaoke/shtg_karaoke_typew_lines.json.gz'),
     'words': Path('.cache/karaoke/shtg_karaoke_typew_words.json.gz')
 }
 
-KARAOKE_HANDW_URL = 'https://github.com/aimagelab/HWD/releases/download/ts/handwitten_images.zip'
-KARAOKE_HANDW_ZIP_PATH = Path('.cache/karaoke/handwitten_images.zip')
-KARAOKE_HANDW_DIR_PATH = Path('.cache/karaoke/handwitten_images')
+KARAOKE_HANDW_URL = 'https://github.com/aimagelab/HWD/releases/download/karaoke/handwritten_images.zip'
+KARAOKE_HANDW_ZIP_PATH = Path('.cache/karaoke/handwritten_images.zip')
+KARAOKE_HANDW_DIR_PATH = Path('.cache/karaoke/handwritten_images')
 
-KARAOKE_TYPEW_URL = 'https://github.com/aimagelab/HWD/releases/download/ts/typewritten_images.zip'
+KARAOKE_TYPEW_URL = 'https://github.com/aimagelab/HWD/releases/download/karaoke/typewritten_images.zip'
 KARAOKE_TYPEW_ZIP_PATH = Path('.cache/karaoke/typewritten_images.zip')
 KARAOKE_TYPEW_DIR_PATH = Path('.cache/karaoke/typewritten_images')
 
