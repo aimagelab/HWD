@@ -27,5 +27,6 @@ setup(
         'tiktoken',
         'protobuf',
         'msgpack',
+        'editdistance',
     ],
 )

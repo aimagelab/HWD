@@ -96,6 +96,7 @@ class BaseSHTGDataset(Dataset):
         for sample in self:
             transcriptions[sample['dst_path']] = sample['gen_text']
         self.load_style_samples, self.load_gen_sample = old_style_flag, old_gen_flag
+        path.mkdir(parents=True, exist_ok=True)
         with open(path / 'transcriptions.json', 'w') as f:
             json.dump(transcriptions, f)
 

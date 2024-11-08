@@ -21,17 +21,25 @@ IAM_LINES_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/lines.tg
 IAM_WORDS_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/words.tgz'
 IAM_XML_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/xml.tgz'
 IAM_ASCII_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/ascii.tgz'
+IAM_FORMS_AD_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/formsA-D.tgz'
+IAM_FORMS_EH_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/formsE-H.tgz'
+IAM_FORMS_IZ_URL = 'https://github.com/aimagelab/HWD/releases/download/iam/formsI-Z.tgz'
 
 IAM_LINES_TGZ_PATH = Path('.cache/iam/lines.tgz')
 IAM_WORDS_TGZ_PATH = Path('.cache/iam/words.tgz')
 IAM_XML_TGZ_PATH = Path('.cache/iam/xml.tgz')
 IAM_ASCII_TGZ_PATH = Path('.cache/iam/ascii.tgz')
+IAM_FORMS_AD_TGZ_PATH = Path('.cache/iam/formsA-D.tgz')
+IAM_FORMS_EH_TGZ_PATH = Path('.cache/iam/formsE-H.tgz')
+IAM_FORMS_IZ_TGZ_PATH = Path('.cache/iam/formsI-Z.tgz')
 
 IAM_LINES_DIR_PATH = Path('.cache/iam/lines')
 IAM_WORDS_DIR_PATH = Path('.cache/iam/words')
 IAM_XML_DIR_PATH = Path('.cache/iam/xml')
 IAM_ASCII_DIR_PATH = Path('.cache/iam/ascii')
-
+IAM_FORMS_AD_DIR_PATH = Path('.cache/iam/formsA-D')
+IAM_FORMS_EH_DIR_PATH = Path('.cache/iam/formsE-H')
+IAM_FORMS_IZ_DIR_PATH = Path('.cache/iam/formsI-Z')
 
 def extract_lines_from_xml(xml_string):
     # Parse the XML string
@@ -107,6 +115,9 @@ class IAMBase(BaseSHTGDataset):
                 if writer_n == writer_n_tgt and sample_id != sample_id_tgt \
                     and len(text_tgt) > 2 and text_tgt != text:
                     style_ids.append(sample_id_tgt)
+
+            if len(style_ids) == 0:
+                continue
 
             data.append({
                 'text': text,
