@@ -79,13 +79,13 @@ class BaseSHTGDataset(Dataset):
         with gzip.open(path, 'wt', encoding='utf-8') as f:
             json.dump(self.data, f)
 
-    def save_reference(self, path):
+    def save_reference(self, path, convert=None):
         path = Path(path)
         for sample in tqdm(self.data):
             img = Image.open(self.imgs[sample['gen_id']])
             dst = path / sample['dst']
             dst.parent.mkdir(parents=True, exist_ok=True)
-            img.save(dst)
+            img.convert(convert).save(dst)
         self.save_transcriptions(path)
 
     def save_transcriptions(self, path):
