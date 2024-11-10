@@ -63,8 +63,8 @@ class KaraokeBase(BaseSHTGDataset):
         imgs_path = dir_path / img_type
         self.imgs = {img_path.stem: img_path for img_path in imgs_path.rglob('*.png')}
 
-        lables_path = imgs_path / 'transcriptions.json'
-        labels = json.loads(lables_path.read_text())
+        labels_path = imgs_path / 'transcriptions.json'
+        labels = json.loads(labels_path.read_text())
         self.labels = {Path(path).stem: lbl for path, lbl in labels.items()}
 
 

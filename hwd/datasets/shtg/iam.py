@@ -188,11 +188,11 @@ class IAMLinesAndWords(IAMBase):
         self.imgs.update(self.words_images)
         self.imgs.update(self.lines_images)
 
-        self.words_lables = {word['id']: word['text'] for word in self.words}
-        self.lines_lables = {line['id']: line['text'] for line in self.lines}
+        self.words_labels = {word['id']: word['text'] for word in self.words}
+        self.lines_labels = {line['id']: line['text'] for line in self.lines}
         self.labels = {}
-        self.labels.update(self.words_lables)
-        self.labels.update(self.lines_lables)
+        self.labels.update(self.words_labels)
+        self.labels.update(self.lines_labels)
 
 
 class IAMLinesFromWords(IAMLinesAndWords):
@@ -200,7 +200,7 @@ class IAMLinesFromWords(IAMLinesAndWords):
         super().__init__(SHTG_IAM_LINES_URL, SHTG_IAM_LINES_PATH, **kwargs)
 
         lines_to_words = defaultdict(list)
-        for word_id in self.words_lables.keys():
+        for word_id in self.words_labels.keys():
             a, b, c, _ = word_id.split('-')
             lines_to_words[f'{a}-{b}-{c}'].append(word_id)
 
@@ -216,7 +216,7 @@ class IAMWordsFromLines(IAMLinesAndWords):
         super().__init__(SHTG_IAM_WORDS_URL, SHTG_IAM_WORDS_PATH, **kwargs)
 
         words_to_lines = defaultdict(list)
-        for word_id in self.words_lables.keys():
+        for word_id in self.words_labels.keys():
             a, b, c, _ = word_id.split('-')
             words_to_lines[word_id].append(f'{a}-{b}-{c}')
 

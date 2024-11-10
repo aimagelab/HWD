@@ -208,14 +208,14 @@ class TrOCRBackbone(BaseBackbone):
         authors_list = []
         labels_list = []
         preds_list = []
-        for images, authors, lables in tqdm(loader, desc='Computing text', disable=not verbose):
+        for images, authors, labels in tqdm(loader, desc='Computing text', disable=not verbose):
             images = self.processor(images=images, return_tensors="pt").pixel_values.to(device)
 
             ids = self.model.generate(images, max_new_tokens=self.max_new_tokens)
             preds = self.processor.batch_decode(ids, skip_special_tokens=True)
 
             authors_list.extend(authors)
-            labels_list.extend(lables)
+            labels_list.extend(labels)
             preds_list.extend(preds)
 
         return preds_list, labels_list, authors_list

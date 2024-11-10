@@ -153,9 +153,9 @@ class IAMLinesVariable(IAMBase):
         assert min_width < max_width, f'Min width should be lower than max width {min_width=} {max_width=}'
         self.output_dir = OUTPUT_DIR / f'{min_width}_{max_width}_H{height}'
         self.shtg_path = self.output_dir.with_suffix('.json.gz')
-        lables_path = self.output_dir / 'transcriptions.json'
+        labels_path = self.output_dir / 'transcriptions.json'
 
-        if not self.output_dir.exists() or not self.shtg_path.exists() or not lables_path.exists():
+        if not self.output_dir.exists() or not self.shtg_path.exists() or not labels_path.exists():
             if self.output_dir.exists():
                 print(f'Found a incomplete folder {self.output_dir}')
                 shutil.rmtree(self.output_dir)
@@ -166,7 +166,7 @@ class IAMLinesVariable(IAMBase):
                 self.data = json.load(file)
 
             self.imgs = {img_path.stem: img_path for img_path in self.output_dir.rglob('*.png')}
-            self.labels = {Path(img_path).stem: lbl for img_path, lbl in json.loads(lables_path.read_text()).items()}
+            self.labels = {Path(img_path).stem: lbl for img_path, lbl in json.loads(labels_path.read_text()).items()}
 
 
     def generate_variant(self, min_width, max_width, height):
