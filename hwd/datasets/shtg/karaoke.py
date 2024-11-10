@@ -99,7 +99,7 @@ class KaraokeLines(KaraokeBase):
         super().__init__('lines', flavor, **kwargs)
 
 
-class KaraokeBlankFromBlank(KaraokeBase):
+class KaraokeLinesAndWords(KaraokeBase):
     def __init__(self, gen_type, style_type, flavor, **kwargs):
         super().__init__(gen_type, flavor, **kwargs)
         alt_db = KaraokeBase(style_type, flavor, **kwargs)
@@ -120,11 +120,11 @@ class KaraokeBlankFromBlank(KaraokeBase):
         self.labels.update(alt_db.labels)
 
 
-class KaraokeWordsFromLines(KaraokeBlankFromBlank):
+class KaraokeWordsFromLines(KaraokeLinesAndWords):
     def __init__(self, flavor, **kwargs):
         super().__init__('words', 'lines', flavor, **kwargs)
 
 
-class KaraokeLinesFromWords(KaraokeBlankFromBlank):
+class KaraokeLinesFromWords(KaraokeLinesAndWords):
     def __init__(self, flavor, **kwargs):
         super().__init__('lines', 'words', flavor, **kwargs)
