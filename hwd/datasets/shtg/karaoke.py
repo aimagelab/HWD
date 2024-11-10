@@ -115,9 +115,9 @@ class KaraokeBlankFromBlank(KaraokeBase):
             sample['style_ids'] = word_ids
         
         alt_db.imgs = {f'alt_{word_id}': img_path for word_id, img_path in alt_db.imgs.items()}
-        self.imgs = self.imgs | alt_db.imgs
+        self.imgs.update(alt_db.imgs)
         alt_db.labels = {f'alt_{word_id}': lbl for word_id, lbl in alt_db.labels.items()}
-        self.labels = self.labels | alt_db.labels
+        self.labels.update(alt_db.labels)
 
 
 class KaraokeWordsFromLines(KaraokeBlankFromBlank):

@@ -184,11 +184,15 @@ class IAMLinesAndWords(IAMBase):
 
         self.words_images = {img_path.stem: img_path for img_path in IAM_WORDS_DIR_PATH.rglob('*.png')}
         self.lines_images = {img_path.stem: img_path for img_path in IAM_LINES_DIR_PATH.rglob('*.png')}
-        self.imgs = self.words_images | self.lines_images
+        self.imgs = {}
+        self.imgs.update(self.words_images)
+        self.imgs.update(self.lines_images)
 
         self.words_lables = {word['id']: word['text'] for word in self.words}
         self.lines_lables = {line['id']: line['text'] for line in self.lines}
-        self.labels = self.words_lables | self.lines_lables
+        self.labels = {}
+        self.labels.update(self.words_lables)
+        self.labels.update(self.lines_lables)
 
 
 class IAMLinesFromWords(IAMLinesAndWords):

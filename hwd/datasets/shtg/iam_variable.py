@@ -173,7 +173,10 @@ class IAMLinesVariable(IAMBase):
         forms_ad = {form_path.stem: form_path for form_path in IAM_FORMS_AD_DIR_PATH.rglob('*.png')}
         forms_eh = {form_path.stem: form_path for form_path in IAM_FORMS_EH_DIR_PATH.rglob('*.png')}
         forms_iz = {form_path.stem: form_path for form_path in IAM_FORMS_IZ_DIR_PATH.rglob('*.png')}
-        forms = forms_ad | forms_eh | forms_iz
+        forms = {}
+        forms.update(forms_ad)
+        forms.update(forms_eh)
+        forms.update(forms_iz)
 
         self.imgs = {}
         self.labels = {}
