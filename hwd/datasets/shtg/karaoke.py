@@ -2,6 +2,7 @@ from PIL import Image
 from .base_dataset import BaseSHTGDataset, download_file, extract_zip
 from pathlib import Path
 from tqdm import tqdm
+from collections import defaultdict
 import json
 import gzip
 
@@ -96,3 +97,34 @@ class KaraokeWords(KaraokeBase):
 class KaraokeLines(KaraokeBase):
     def __init__(self, flavor, **kwargs):
         super().__init__('lines', flavor, **kwargs)
+
+
+class KaraokeBlankFromBlank(KaraokeBase):
+    def __init__(self, gen_type, style_type, flavor, **kwargs):
+        super().__init__(gen_type, flavor, **kwargs)
+        alt_db = KaraokeBase(style_type, flavor, **kwargs)
+        font_to_lines = defaultdict(set)
+        for sample in alt_db.data:
+            font = Path(sample['dst']).parent.name
+            font_to_lines[font].update(sample['style_ids'])
+
+        for sample in self.data:
+            font = Path(sample['dst']).parent.name
+            word_ids = list(font_to_lines[font])
+            word_ids = [f'alt_{word_id}' for word_id in word_ids]
+            sample['style_ids'] = word_ids
+        
+        alt_db.imgs = {f'alt_{word_id}': img_path for word_id, img_path in alt_db.imgs.items()}
+        self.imgs = self.imgs | alt_db.imgs
+        alt_db.labels = {f'alt_{word_id}': lbl for word_id, lbl in alt_db.labels.items()}
+        self.labels = self.labels | alt_db.labels
+
+
+class KaraokeWordsFromLines(KaraokeBlankFromBlank):
+    def __init__(self, flavor, **kwargs):
+        super().__init__('words', 'lines', flavor, **kwargs)
+
+
+class KaraokeLinesFromWords(KaraokeBlankFromBlank):
+    def __init__(self, flavor, **kwargs):
+        super().__init__('lines', 'words', flavor, **kwargs)
