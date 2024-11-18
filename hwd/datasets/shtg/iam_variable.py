@@ -9,11 +9,12 @@ import json
 import editdistance
 import gzip
 import shutil
-from .iam import IAMBase, IAM_XML_DIR_PATH
+from .iam import IAMBase, IAMLines, IAM_XML_DIR_PATH
 from .iam import IAM_FORMS_AD_URL, IAM_FORMS_AD_DIR_PATH, IAM_FORMS_AD_TGZ_PATH
 from .iam import IAM_FORMS_EH_URL, IAM_FORMS_EH_DIR_PATH, IAM_FORMS_EH_TGZ_PATH
 from .iam import IAM_FORMS_IZ_URL, IAM_FORMS_IZ_DIR_PATH, IAM_FORMS_IZ_TGZ_PATH
 from .base_dataset import download_file, extract_tgz
+from collections import defaultdict
 
 OUTPUT_DIR = Path('~/.cache/iam_variable/').expanduser()
 
@@ -247,3 +248,24 @@ class IAMLinesVariable(IAMBase):
     def delete(self):
         shutil.rmtree(self.output_dir)
         self.shtg_path.unlink()
+
+
+class IAMLinesFromVariable(IAMLines):
+    def __init__(self, min_width, max_width, height=64, **kwargs):
+        super().__init__(**kwargs)
+        variable_dataset = IAMLinesVariable(min_width, max_width, height, **kwargs)
+
+        lines_to_var = defaultdict(list)
+        for key in variable_dataset.imgs.keys():
+            parts = key.split('-')
+            line_id = '-'.join(parts[:-2])
+            lines_to_var[line_id].append(key)
+
+        for sample in self.data:
+            style_ids = []
+            for style_id in sample['style_ids']:
+                style_ids.extend(lines_to_var[style_id])
+            sample['style_ids'] = style_ids
+
+        self.imgs.update(variable_dataset.imgs)
+        self.labels.update(variable_dataset.labels)
