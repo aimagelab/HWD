@@ -9,6 +9,7 @@ import json
 import editdistance
 import gzip
 import shutil
+import warnings
 from .iam import IAMBase, IAMLines, IAM_XML_DIR_PATH
 from .iam import IAM_FORMS_AD_URL, IAM_FORMS_AD_DIR_PATH, IAM_FORMS_AD_TGZ_PATH
 from .iam import IAM_FORMS_EH_URL, IAM_FORMS_EH_DIR_PATH, IAM_FORMS_EH_TGZ_PATH
@@ -261,11 +262,17 @@ class IAMLinesFromVariable(IAMLines):
             line_id = '-'.join(parts[:-2])
             lines_to_var[line_id].append(key)
 
+        new_data = []
         for sample in self.data:
             style_ids = []
             for style_id in sample['style_ids']:
                 style_ids.extend(lines_to_var[style_id])
             sample['style_ids'] = style_ids
+            if len(sample['style_ids']) > 0:
+                new_data.append(sample)
+            else:
+                warnings.warn('Some samples in this dataset are discarded because there are not style samples with that size range.')
+        self.data = new_data
 
         self.imgs.update(variable_dataset.imgs)
         self.labels.update(variable_dataset.labels)
