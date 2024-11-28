@@ -124,7 +124,7 @@ print(f"KID Score: {score}")
 ```
 
 ## BKID (Binarized KID)
-The binarized version of KID. The binarized scores are computed by applying Otsu's thresholding before evaluation.
+A variant of KID that operates on binarized images. The binarized scores are computed by applying Otsu's thresholding before evaluation.
 
 ```python
 from hwd.scores import BKIDScore
