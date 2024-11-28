@@ -93,7 +93,7 @@ score = hwd(fakes, reals)
 print(f"HWD Score: {score}")
 ```
 
-## FID (Frechet Inception Distance)
+## FID (Fréchet Inception Distance)
 The FID compares the distributions of two datasets in the feature space of an InceptionNet pretrained on ImageNet. By default, images are cropped before evaluation.
 
 ![FID](https://github.com/user-attachments/assets/bd4e4538-0508-4f52-835d-4371c5e968ac)
