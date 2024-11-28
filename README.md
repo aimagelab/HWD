@@ -42,10 +42,10 @@ dataset/
 └── ...
 ```
 
-Each author's folder should contain `.png` images of their handwriting. Additionally, if you intend to evaluate Character Error Rate (CER), you must include a `transcriptions.json` file in the dataset. This file should be a dictionary where:
+Each author's folder should contain `.png` images of their handwriting. To evaluate the Character Error Rate (CER), you must include a `transcriptions.json` file in the dataset. This file should be a dictionary where:
 
- - The key is the relative path to the image.
- - The value is the ground-truth text contained in the image.
+ - The **key** is the relative path to the image.
+ - The **value** is the ground-truth text contained in the image.
 
 Example structure of `transcriptions.json`:
 
@@ -57,7 +57,7 @@ Example structure of `transcriptions.json`:
   "author2/sample2.png": "Artificial intelligence"
 }
 ```
-The `transcriptions.json` file is only required for CER evaluation and will be automatically parsed by the `FolderDataset` class if present in the dataset directory. Ensure that all images referenced in the `transcriptions.json` file are present in the corresponding folders.
+The `transcriptions.json` file is only required for CER evaluation and will be automatically parsed by the `FolderDataset` class if present in the dataset directory. Ensure all images referenced in the `transcriptions.json` file are in the corresponding folders.
 
 Once your dataset is prepared, you can use the `FolderDataset` class to load images for evaluation:
 
@@ -77,10 +77,10 @@ For an image of height $h$ and width $w$, the unfold operation splits the image 
 fakes = fakes.unfold()
 reals = reals.unfold()
 ```
-For FID and KID, images are cropped as described in the paper by default. If you wish to evaluate using the entire line instead of cropping, you can unfold the dataset using the above method.
+For FID and KID, images are cropped by default, as described in the paper. If you wish to evaluate using the entire line instead of cropping, you can unfold the dataset using the above method.
 
 ## HWD (Handwriting Distance)
-The primary evaluation metric introduced in the paper. It compares two datasets (reference and generated) by resizing images to a height of 32 pixels and using a Euclidean distance metric.
+The primary evaluation metric introduced in the paper. It compares two datasets (reference and generated) by resizing images to a height of 32 pixels and using an Euclidean distance metric.
 
 ```python
 from hwd.scores import HWDScore
@@ -102,7 +102,7 @@ print(f"FID Score: {score}")
 ```
 
 ## BFID (Binarized FID)
-A variant of FID that operates on binarized images for improved comparison of certain datasets. The binarized scores are computed by applying Otsu's thresholding before evaluation.
+A variant of FID that operates on binarized images. The binarized scores are computed by applying Otsu's thresholding before evaluation.
 
 ```python
 from hwd.scores import BFIDScore
@@ -124,7 +124,7 @@ print(f"KID Score: {score}")
 ```
 
 ## BKID (Binarized KID)
-Binarized version of KID, emphasizing fine-grained details in the handwriting. The binarized scores are computed by applying Otsu's thresholding before evaluation.
+The binarized version of KID. The binarized scores are computed by applying Otsu's thresholding before evaluation.
 
 ```python
 from hwd.scores import BKIDScore
@@ -135,7 +135,7 @@ print(f"BKID Score: {score}")
 ```
 
 ## CER (Character Error Rate)
-The CERScore evaluates the character-level accuracy of generated handwriting by comparing the predicted text against ground-truth transcriptions. By default, the model `microsoft/trocr-base-handwritten` is used.
+The CER evaluates the character-level accuracy of generated handwriting by comparing the predicted text against ground-truth transcriptions. By default, the model `microsoft/trocr-base-handwritten` is used.
 
 ```python
 from hwd.scores import CERScore
@@ -164,7 +164,7 @@ print(f"LPIPS Score: {score}")
 ```
 
 ## I-LPIPS (Intra-LPIPS)
-Evaluates intra-author consistency by comparing style coherence within the same author’s samples. This is also a custom implementation using the same backbone as HWD.
+Evaluates intra-image consistency by comparing style coherence within the sample. This is also a custom implementation using the same backbone as HWD.
 
 ```python
 from hwd.scores import IntraLPIPSScore
