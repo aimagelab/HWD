@@ -80,7 +80,7 @@ reals = reals.unfold()
 For FID and KID, images are cropped by default, as described in the paper. If you wish to evaluate using the entire line instead of cropping, you can unfold the dataset using the above method.
 
 ## HWD (Handwriting Distance)
-The primary evaluation metric introduced in the paper. It compares two datasets (reference and generated) by resizing images to a height of 32 pixels and using an Euclidean distance metric.
+The HWD is the primary evaluation score introduced in the paper. It compares two datasets (reference and generated) by resizing images to a height of 32 pixels and using the Euclidean distance between their features.
 
 ```python
 from hwd.scores import HWDScore
@@ -91,7 +91,7 @@ print(f"HWD Score: {score}")
 ```
 
 ## FID (Frechet Inception Distance)
-The FID compares the distributions of two datasets in the feature space of a pretrained model. By default, images are cropped before evaluation.
+The FID compares the distributions of two datasets in the feature space of an InceptionNet pretrained on ImageNet. By default, images are cropped before evaluation.
 
 ```python
 from hwd.scores import FIDScore
@@ -102,7 +102,7 @@ print(f"FID Score: {score}")
 ```
 
 ## BFID (Binarized FID)
-A variant of FID that operates on binarized images. The binarized scores are computed by applying Otsu's thresholding before evaluation.
+The BFID is a variant of the FID that operates on binarized images. This score is computed by applying Otsu's thresholding before evaluation.
 
 ```python
 from hwd.scores import BFIDScore
@@ -113,7 +113,7 @@ print(f"BFID Score: {score}")
 ```
 
 ## KID (Kernel Inception Distance)
-The KID measures differences using maximum mean discrepancy (MMD). By default, images are cropped before evaluation.
+The KID measures differences between sets of images by using the maximum mean discrepancy (MMD). By default, images are cropped before evaluation.
 
 ```python
 from hwd.scores import KIDScore
@@ -124,7 +124,7 @@ print(f"KID Score: {score}")
 ```
 
 ## BKID (Binarized KID)
-A variant of KID that operates on binarized images. The binarized scores are computed by applying Otsu's thresholding before evaluation.
+The BKID is a variant of the KID that operates on binarized images. This score is computed by applying Otsu's thresholding before evaluation.
 
 ```python
 from hwd.scores import BKIDScore
@@ -135,7 +135,7 @@ print(f"BKID Score: {score}")
 ```
 
 ## CER (Character Error Rate)
-The CER evaluates the character-level accuracy of generated handwriting by comparing the predicted text against ground-truth transcriptions. By default, the model `Microsoft/trocar-base-handwritten` is used.
+The CER evaluates the character-level accuracy of generated handwritten text images by comparing their contained text against the ground-truth transcriptions. By default, the model `Microsoft/trocar-base-handwritten` is used.
 
 ```python
 from hwd.scores import CERScore
@@ -152,7 +152,7 @@ print(f"CER Score: {score}")
 ```
 
 ### LPIPS (Learned Perceptual Image Patch Similarity)
-Measures perceptual differences between images using feature activations from a deep network. The LPIPS metric uses a custom implementation with the same backbone as HWD.
+The LPIPS measures perceptual differences between images by using feature activations from a deep network. The LPIPS score in this repo uses a custom implementation with the same backbone as HWD.
 
 ```python
 from hwd.scores import LPIPSScore
@@ -163,7 +163,7 @@ print(f"LPIPS Score: {score}")
 ```
 
 ## I-LPIPS (Intra-LPIPS)
-Evaluates intra-image consistency by comparing style coherence within the sample. This is also a custom implementation using the same backbone as HWD.
+The I-LPIPS evaluates the intra-image consistency by comparing style coherence between crops within the sample. This is also a custom implementation using the same backbone as HWD.
 
 ```python
 from hwd.scores import IntraLPIPSScore
