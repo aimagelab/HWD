@@ -135,14 +135,13 @@ print(f"BKID Score: {score}")
 ```
 
 ## CER (Character Error Rate)
-The CER evaluates the character-level accuracy of generated handwriting by comparing the predicted text against ground-truth transcriptions. By default, the model `microsoft/trocr-base-handwritten` is used.
+The CER evaluates the character-level accuracy of generated handwriting by comparing the predicted text against ground-truth transcriptions. By default, the model `Microsoft/trocar-base-handwritten` is used.
 
 ```python
 from hwd.scores import CERScore
 
 # Load datasets
 fakes = FolderDataset('/path/to/images/fake')  # Ensure this folder contains transcriptions.json
-reals = FolderDataset('/path/to/images/real')  # Ensure this folder contains transcriptions.json
 
 # Initialize CER score
 cer = CERScore(height=64)
