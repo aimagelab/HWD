@@ -73,6 +73,8 @@ Some evaluation metrics depend on whether the dataset is folded or unfolded. The
 
 For an image of height $h$ and width $w$, the unfold operation splits the image into $n=⌊w/h⌋$ square images of size $h \times h$.
 
+![unfold](https://github.com/user-attachments/assets/b43d4726-6776-4ddb-8c96-9844a6b8cda6)
+
 ```python
 fakes = fakes.unfold()
 reals = reals.unfold()
