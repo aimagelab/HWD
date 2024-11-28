@@ -83,6 +83,8 @@ For FID and KID, images are cropped by default, as described in the paper. If yo
 ## HWD (Handwriting Distance)
 The HWD is the primary evaluation score introduced in the paper. It compares two datasets (reference and generated) by resizing images to a height of 32 pixels and using the Euclidean distance between their features.
 
+![HWD](https://github.com/user-attachments/assets/c64152c6-3414-4cb1-b4ab-a31202fe8fb4)
+
 ```python
 from hwd.scores import HWDScore
 
@@ -93,6 +95,8 @@ print(f"HWD Score: {score}")
 
 ## FID (Frechet Inception Distance)
 The FID compares the distributions of two datasets in the feature space of an InceptionNet pretrained on ImageNet. By default, images are cropped before evaluation.
+
+![FID](https://github.com/user-attachments/assets/bd4e4538-0508-4f52-835d-4371c5e968ac)
 
 ```python
 from hwd.scores import FIDScore
