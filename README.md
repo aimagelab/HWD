@@ -24,7 +24,7 @@ pip install .
 Detailed instructions for generating styled handwritten text will be added in a future update.
 
 # Evaluation
-This section describes how to evaluate the quality of styled handwritten text generation using various metrics.
+This section describes how to evaluate the quality of styled handwritten text generation using various scores.
 
 ## Dataset
 Organize your data in the following folder structure:
