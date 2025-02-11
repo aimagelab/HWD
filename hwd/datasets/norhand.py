@@ -7,6 +7,7 @@ import random
 
 class NorhandDataset(BaseDataset):
     def __init__(self, path, transform=None, nameset=None):
+        raise NotImplementedError
         """
         Args:
             path (string): Path folder of the dataset.

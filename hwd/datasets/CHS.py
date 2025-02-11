@@ -6,6 +6,7 @@ import random
 
 class CHSDataset(BaseDataset):
     def __init__(self, path, transform=None, nameset=None):
+        raise NotImplementedError
         super().__init__(path, transform, nameset)
 
         path = Path(path)

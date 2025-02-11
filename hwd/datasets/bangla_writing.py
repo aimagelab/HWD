@@ -34,6 +34,7 @@ def extract_words(path):
 
 class BanglaWritingDataset(BaseDataset):
     def __init__(self, path, transform=None):
+        raise NotImplementedError
         super().__init__(path, transform, None)
 
         path = Path(path) / 'words'
