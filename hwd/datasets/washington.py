@@ -46,12 +46,12 @@ class WashingtonDataset(BaseDataset):
         self.imgs = [img for img in self.imgs if img.stem[:6] in split_ids]
         assert len(self.imgs) > 0, f'No images found for {nameset} in {imgs_root}'
 
-        self.authors = ['0'] * len(self.imgs)  # All samples are from the same author
+        self.authors = [0, ] * len(self.imgs)  # All samples are from the same author
         super().__init__(
             washington_unzip_path,
             self.imgs,
             self.authors,
-            ['0'],  # All samples are from the same author
+            [0, ],  # All samples are from the same author
             transform=transform,
         )
 
