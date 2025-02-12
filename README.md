@@ -156,7 +156,7 @@ score = cer(fakes)
 print(f"CER Score: {score}")
 ```
 
-### LPIPS (Learned Perceptual Image Patch Similarity)
+## LPIPS (Learned Perceptual Image Patch Similarity)
 The LPIPS measures perceptual differences between images by using feature activations from a deep network. The LPIPS score in this repo uses a custom implementation with the same backbone as HWD.
 
 ```python
