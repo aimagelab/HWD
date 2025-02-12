@@ -1,6 +1,7 @@
 from .datasets.transforms import ResizeHeight, ToTensor, PaddingSquareHeight, Compose, CropStartSquare, ResizeSquare, OtsuBinarization
-from .metrics.backbones import VGG16Backbone, InceptionV3Backbone, TrOCRBackbone, ActivationsVGG16Backbone
+from .metrics.backbones import VGG16Backbone, InceptionV3Backbone, TrOCRBackbone, ActivationsVGG16Backbone, GeometryBackbone
 from .metrics.distances import EuclideanDistance, FrechetDistance, MaximumMeanDiscrepancy, LPIPSDistance, IntraLPIPSDistance
+from .metrics.gs import geom_score
 from .metrics.base_score import BaseScore
 from torchmetrics.text import CharErrorRate
 from PIL import Image
@@ -157,3 +158,23 @@ class IntraLPIPSScore(BaseScore):
         else:
             data = self.digest(dataset, **kwargs)
             return self.distance(data, dataset.imgs_ids)
+        
+
+class GeometryScore(BaseScore):
+    def __init__(self, height=32, max_workers=8, L_0=64, gamma=None, i_max=100, n=1000):
+        backbone = GeometryBackbone(max_workers=max_workers, L_0=L_0, gamma=gamma, i_max=i_max, n=n)
+        distance = geom_score
+        transforms = Compose([
+            PaddingSquareHeight(),
+            ResizeHeight(height),
+            ToTensor(),
+        ])
+        super().__init__(backbone, distance, transforms)
+
+    def __call__(self, dataset1, dataset2, stream=False, **kwargs):
+        assert stream is False, 'The Geometry score does not support streaming'
+        assert hasattr(dataset1, 'imgs_ids'), f'To use the {self.__class__.__name__} you have to provide and Unfolded datasets "dataset.unfold()"'
+        assert hasattr(dataset2, 'imgs_ids'), f'To use the {self.__class__.__name__} you have to provide and Unfolded datasets "dataset.unfold()"'
+        data1 = self.digest(dataset1, **kwargs)
+        data2 = self.digest(dataset2, **kwargs)
+        return self.distance(data1, data2).item()

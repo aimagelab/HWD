@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from torch.nn.functional import adaptive_avg_pool2d
 from .base_score import BaseScore, ProcessedDataset, BaseBackbone
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
-
+from . import gs
 
 class LayerActivations:
     def __init__(self, model):
@@ -231,4 +231,19 @@ class TrOCRBackbone(BaseBackbone):
         preds, labels, authors = self.get_text(loader, verbose)
         return preds, labels, authors
 
+
+class GeometryBackbone(BaseBackbone):
+    def __init__(self, max_workers=8, L_0=64, gamma=None, i_max=100, n=1000, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.rlts_kwargs = {
+            'max_workers': max_workers,
+            'L_0': L_0,
+            'gamma': gamma,
+            'i_max': i_max,
+            'n': n
+        }
     
+    def __call__(self, dataset, verbose=False):
+        data = torch.stack([sample[0] for sample in dataset])
+        data = data.flatten(1)
+        return gs.rlts_parallel(data.cpu().numpy(), verbose=verbose, **self.rlts_kwargs)

@@ -178,3 +178,22 @@ score = ilpips(fakes)
 print(f"I-LPIPS Score: {score}")
 ```
 
+## GeometryScore
+Python implementation of the algorithms from [the paper](https://arxiv.org/abs/1802.02664). If you use this algorithm in your research we kindly ask you to cite our work
+
+```
+@article{khrulkov2018geometry,
+  title={Geometry {S}core: {A} {M}ethod {F}or {C}omparing {G}enerative {A}dversarial {N}etworks},
+  author={Khrulkov, Valentin and Oseledets, Ivan},
+  journal={arXiv preprint arXiv:1802.02664},
+  year={2018}
+}
+```
+
+```python
+from hwd.scores import GeometryScore
+
+gs = GeometryScore(height=32, max_workers=8, n=1000)
+score = gs(fakes, reals)
+print(f"Geometry Score: {score}")
+```

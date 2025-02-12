@@ -3,6 +3,8 @@ from __future__ import print_function
 from .utils import relative
 from .utils import witness
 import numpy as np
+from tqdm import tqdm
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
 
 def rlt(X, L_0=64, gamma=None, i_max=100):
@@ -31,25 +33,6 @@ def rlt(X, L_0=64, gamma=None, i_max=100):
     return res
 
 
-def rlts_parallel(X, L_0=64, gamma=None, i_max=100, n=1000, num_workers=8, n_multiplier=1, verbose=False):
-    from concurrent.futures import ThreadPoolExecutor
-
-    def print_rlt(i):
-        inner_res = []
-        for _ in range(n_multiplier):
-            inner_res.append(rlt(X, L_0, gamma, i_max))
-            counter += 1
-            if verbose:
-                print(f'Computing RLT {i}/{n}')
-        return inner_res
-
-    with ThreadPoolExecutor(max_workers=num_workers) as executor:
-        results = executor.map(print_rlt, [i for i in range(n)])
-    results = sum(results, [])
-    print(' OK')
-    return np.stack(results, axis=0)
-
-
 def rlts(X, L_0=64, gamma=None, i_max=100, n=1000, verbose=False):
     """
       This function implements Algorithm 1.
@@ -65,14 +48,26 @@ def rlts(X, L_0=64, gamma=None, i_max=100, n=1000, verbose=False):
       for n collections of randomly sampled landmarks.
     """
     rlts = np.zeros((n, i_max))
-    for i in range(n):
-        if verbose:
-            print(f'\rComputing RLT {i+1}/{n}', end='', flush=True)
+    for i in tqdm(range(n), disable=not verbose):
         rlts[i, :] = rlt(X, L_0, gamma, i_max)
-
-    if verbose:
-        print(' OK')
     return rlts
+
+
+def rlts_parallel(X, n=10, max_workers=4, verbose=False, **kwargs):
+    """
+    Parallel version of the 'rlts' function using concurrent.futures
+    (ProcessPoolExecutor).
+    """
+    results = []
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(rlt, X, **kwargs) for _ in range(n)]
+
+        for future in tqdm(as_completed(futures), total=n, disable=not verbose):
+            res = future.result()
+            results.append(res)
+
+    rlts_array = np.vstack(results)
+    return rlts_array
 
 
 def geom_score(rlts1, rlts2):
