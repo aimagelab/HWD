@@ -1,5 +1,5 @@
 from .base_dataset import BaseDataset
-from .folder_dataset import FolderDataset
+from .folder_dataset import FolderDataset, GeneratedDataset
 from .cvl import CVLDataset
 from .iam import IAMDataset
 from .leopardi import LeopardiDataset
