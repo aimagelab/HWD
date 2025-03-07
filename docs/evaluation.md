@@ -189,7 +189,7 @@ print(f"I-LPIPS Score: {score}")
 ```
 
 ### GeometryScore
-Python implementation of the algorithms from [the paper](https://arxiv.org/abs/1802.02664). If you use this algorithm in your research we kindly ask you to cite our work
+Python implementation of the algorithms from [the paper](https://arxiv.org/abs/1802.02664).
 
 ```python
 from hwd.scores import GeometryScore
