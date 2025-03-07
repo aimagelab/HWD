@@ -1,6 +1,6 @@
-# Generation
+# Generation 
 
-The module `hwd.datasets.shtg` provides access to several handwriting datasets, each with configurable parameters for dataset customization. Below are the datasets and their respective configurations:
+The **Standard Handwritten Text Generation** (SHTG) module `hwd.datasets.shtg` provides access to several handwriting datasets, each with configurable parameters for dataset customization. Below are the datasets and their respective configurations:
 
 ## Available Datasets
 
